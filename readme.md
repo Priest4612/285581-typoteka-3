@@ -1,7 +1,7 @@
 # Личный проект «Типотека» [![Build status][travis-image]][travis-url]
 
 * Студент: [Антон Кричевцов](https://up.htmlacademy.ru/nodejs/3/user/285581).
-* Наставник: `Неизвестно`.
+* Наставник: [Евгений Новиков](https://up.htmlacademy.ru/nodejs/3/user/1499681).
 
 ---
 
