@@ -3,7 +3,10 @@ const fs = require(`fs`);
 const path = require(`path`);
 
 const utils = require(`../../utils`);
-const {getRandomInt, arrayUtils} = utils;
+const {
+  arrayUtils,
+  dateUtils,
+} = utils;
 const {ExitCode} = require(`../../constants`);
 const {PROJECT_DIR} = require(`../../../settings`);
 
@@ -65,38 +68,22 @@ const CATEGORIES = [
 ];
 
 const AnnounceRestrict = {
-  min: 1,
-  max: 5,
+  MIN: 1,
+  MAX: 5,
 };
 
 const DateRestrict = {
-  min: 0,
-  max: 3
-};
-
-const changeNumberFormat = (number) => number < 10 ? `0${number}` : `${number}`;
-
-const getRandomDate = () => {
-  const date = new Date();
-  const dateArticle = new Date(date.getTime() - Math.random() * getRandomInt(DateRestrict.min, DateRestrict.max) * 24 * 30 * 60 * 60 * 1000);
-
-  const year = dateArticle.getFullYear();
-  const month = changeNumberFormat(dateArticle.getMonth() + 1);
-  const day = changeNumberFormat(dateArticle.getDate());
-  const hours = changeNumberFormat(dateArticle.getHours());
-  const minutes = changeNumberFormat(dateArticle.getMinutes());
-  const seconds = changeNumberFormat(dateArticle.getSeconds());
-
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  MIN: 0,
+  MAX: 3
 };
 
 const generateArticles = (count) => {
   return Array(count).fill({}).map(() => ({
     title: arrayUtils.getOneRandomElement(TITLES),
-    announce: arrayUtils.getRandomElements(SENTENCES, AnnounceRestrict.min, AnnounceRestrict.max).join(` `),
-    fullText: arrayUtils.getRandomElements(SENTENCES, 1, SENTENCES.length - 1).join(` `),
-    createDate: getRandomDate(),
-    category: arrayUtils.getRandomElements(CATEGORIES, 1, CATEGORIES.length - 1),
+    announce: arrayUtils.getRandomElements(SENTENCES, AnnounceRestrict.MIN, AnnounceRestrict.MAX).join(` `),
+    fullText: arrayUtils.getRandomElements(SENTENCES).join(` `),
+    createDate: dateUtils.getRandomDate(DateRestrict.MIN, DateRestrict.MAX),
+    category: arrayUtils.getRandomElements(CATEGORIES),
   }));
 };
 

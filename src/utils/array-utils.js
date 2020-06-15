@@ -13,7 +13,7 @@ const shuffle = (someArray) => {
 
 const getOneRandomElement = (array) => array[getRandomInt(0, array.length - 1)];
 
-const getRandomElements = (array, min, max) => {
+const getRandomElements = (array, min = 1, max = array.length - 1) => {
   return shuffle(array).slice(min, getRandomInt(min, max) + 1);
 };
 
