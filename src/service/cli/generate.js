@@ -1,11 +1,18 @@
 'use strict';
 const fs = require(`fs`);
-const {Utils} = require(`../../utils`);
-const {getRandomInt, shuffle} = Utils;
+const path = require(`path`);
 
-const DEFAULT_COUNT = 1;
-const MAX_COUNT = 1000;
-const FILE_NAME = `mock.json`;
+const utils = require(`../../utils`);
+const {getRandomInt, arrayUtils} = utils;
+const {ExitCode} = require(`../../constants`);
+const {PROJECT_DIR} = require(`../../../settings`);
+
+const articleRestrict = {
+  DEFAULT_COUNT: 1,
+  MAX_COUNT: 1000,
+};
+
+const FILE_NAME = path.join(PROJECT_DIR, `mock.json`);
 
 const TITLES = [
   `Ёлки. История деревьев`,
@@ -67,9 +74,9 @@ const DateRestrict = {
   max: 3
 };
 
-const changeNumberFormat = (number) => number > 10 ? `${number}` : `0${number}`;
+const changeNumberFormat = (number) => number < 10 ? `0${number}` : `${number}`;
 
-const getRandomeDate = () => {
+const getRandomDate = () => {
   const date = new Date();
   const dateArticle = new Date(date.getTime() - Math.random() * getRandomInt(DateRestrict.min, DateRestrict.max) * 24 * 30 * 60 * 60 * 1000);
 
@@ -85,11 +92,11 @@ const getRandomeDate = () => {
 
 const generateArticles = (count) => {
   return Array(count).fill({}).map(() => ({
-    title: TITLES[getRandomInt(0, TITLES.length - 1)],
-    announce: shuffle(SENTENCES).slice(AnnounceRestrict.min, getRandomInt(AnnounceRestrict.min, AnnounceRestrict.max) + 1).join(` `),
-    fullText: shuffle(SENTENCES).slice(1, getRandomInt(1, SENTENCES.length - 1) + 1).join(` `),
-    createDate: getRandomeDate(),
-    category: shuffle(CATEGORIES).slice(1, getRandomInt(1, CATEGORIES.length - 1) + 1),
+    title: arrayUtils.getOneRandomElement(TITLES),
+    announce: arrayUtils.getRandomElements(SENTENCES, AnnounceRestrict.min, AnnounceRestrict.max).join(` `),
+    fullText: arrayUtils.getRandomElements(SENTENCES, 1, SENTENCES.length - 1).join(` `),
+    createDate: getRandomDate(),
+    category: arrayUtils.getRandomElements(CATEGORIES, 1, CATEGORIES.length - 1),
   }));
 };
 
@@ -97,19 +104,21 @@ module.exports = {
   name: `--generate`,
   run(args) {
     const [count] = args;
-    const countArticles = Number.parseInt(count, 10) || DEFAULT_COUNT;
+    const countArticles = Number.parseInt(count, 10) || articleRestrict.DEFAULT_COUNT;
 
-    if (countArticles <= MAX_COUNT) {
+    if (countArticles <= articleRestrict.MAX_COUNT) {
       const content = JSON.stringify(generateArticles(countArticles));
       fs.writeFile(FILE_NAME, content, (err) => {
         if (err) {
-          return console.error(`Can't write data file...`);
+          console.error(`Can't write data file...`);
+          return process.exit(ExitCode.ERROR);
         }
 
         return console.log(`Operation success. File created.`);
       });
     } else {
       console.log(`Не больше 1000 объявлений.`);
+      process.exit(ExitCode.ERROR);
     }
   }
 };
