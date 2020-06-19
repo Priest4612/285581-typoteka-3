@@ -2,12 +2,11 @@
 const chalk = require(`chalk`);
 const path = require(`path`);
 
-const Utils = require(`../../utils`);
 const {
   arrayUtils,
   dateUtils,
   fileUtils,
-} = Utils;
+} = require(`../../utils`);
 const {ExitCode} = require(`../../constants`);
 const {PROJECT_DIR} = require(`../../../settings`);
 
@@ -15,7 +14,7 @@ const {PROJECT_DIR} = require(`../../../settings`);
 const ROOT_PATH = PROJECT_DIR;
 const FILE_NAME = path.join(ROOT_PATH, `mock.json`);
 
-const DATE_PATH = path.join(ROOT_PATH, `date`);
+const DATE_PATH = path.join(ROOT_PATH, `data`);
 const FILE_TITLES_PATH = path.join(DATE_PATH, `titles.txt`);
 const FILE_SENTENCES_PATH = path.join(DATE_PATH, `sentences.txt`);
 const FILE_CATEGORIES_PATH = path.join(DATE_PATH, `categories.txt`);
@@ -35,6 +34,26 @@ const DateRestrict = {
   MAX: 3
 };
 
+
+const readContent = async (filePath) => {
+  try {
+    return await fileUtils.readFileToArray(filePath);
+  } catch (err) {
+    console.error(chalk.red(err));
+    return process.exit(ExitCode.ERROR);
+  }
+};
+
+const saveMock = async (fileName, content) => {
+  try {
+    await fileUtils.writeFileJSON(fileName, content);
+    console.log(chalk.green(`Operation success. File created.`));
+  } catch (err) {
+    console.error(chalk.red(err));
+    process.exit(ExitCode.ERROR);
+  }
+};
+
 const generateArticles = (count, titles, sentences, categories) => {
   return Array(count).fill({}).map(() => ({
     title: arrayUtils.getOneRandomElement(titles),
@@ -51,12 +70,12 @@ module.exports = {
     const [count] = args;
     const countOffer = Number.parseInt(count, 10) || ArticleRestrict.DEFAULT_COUNT;
 
-    const title = await fileUtils.readFileToArray(FILE_TITLES_PATH);
-    const sentences = await fileUtils.readFileToArray(FILE_SENTENCES_PATH);
-    const categories = await fileUtils.readFileToArray(FILE_CATEGORIES_PATH);
+    const title = await readContent(FILE_TITLES_PATH);
+    const sentences = await readContent(FILE_SENTENCES_PATH);
+    const categories = await readContent(FILE_CATEGORIES_PATH);
 
     if (countOffer <= ArticleRestrict.MAX_COUNT) {
-      await fileUtils.writeFileJSON(FILE_NAME, generateArticles(countOffer, title, sentences, categories));
+      await saveMock(FILE_NAME, generateArticles(countOffer, title, sentences, categories));
     } else {
       console.error(chalk.red(`Не больше ${ArticleRestrict.MAX_COUNT} объявлений.`));
       process.exit(ExitCode.ERROR);
