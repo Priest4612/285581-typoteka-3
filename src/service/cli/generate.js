@@ -14,10 +14,10 @@ const {PROJECT_DIR} = require(`../../../settings`);
 const ROOT_PATH = PROJECT_DIR;
 const FILE_NAME = path.join(ROOT_PATH, `mock.json`);
 
-const DATE_PATH = path.join(ROOT_PATH, `data`);
-const FILE_TITLES_PATH = path.join(DATE_PATH, `titles.txt`);
-const FILE_SENTENCES_PATH = path.join(DATE_PATH, `sentences.txt`);
-const FILE_CATEGORIES_PATH = path.join(DATE_PATH, `categories.txt`);
+const DATA_PATH = path.join(ROOT_PATH, `data`);
+const FILE_TITLES_PATH = path.join(DATA_PATH, `titles.txt`);
+const FILE_SENTENCES_PATH = path.join(DATA_PATH, `sentences.txt`);
+const FILE_CATEGORIES_PATH = path.join(DATA_PATH, `categories.txt`);
 
 const ArticleRestrict = {
   DEFAULT_COUNT: 1,
