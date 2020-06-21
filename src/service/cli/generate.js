@@ -37,7 +37,7 @@ const DateRestrict = {
 
 const readContent = async (filePath) => {
   try {
-    return await fileUtils.readFileToArray(filePath);
+    return await fileUtils.readTextFileToArray(filePath);
   } catch (err) {
     console.error(chalk.red(err));
     return process.exit(ExitCode.ERROR);
