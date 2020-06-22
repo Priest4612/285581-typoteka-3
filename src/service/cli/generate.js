@@ -35,25 +35,6 @@ const DateRestrict = {
 };
 
 
-const readContent = async (filePath) => {
-  try {
-    return await fileUtils.readTextFileToArray(filePath);
-  } catch (err) {
-    console.error(chalk.red(err));
-    return process.exit(ExitCode.ERROR);
-  }
-};
-
-const saveMock = async (fileName, content) => {
-  try {
-    await fileUtils.writeFileJSON(fileName, content);
-    console.log(chalk.green(`Operation success. File created.`));
-  } catch (err) {
-    console.error(chalk.red(err));
-    process.exit(ExitCode.ERROR);
-  }
-};
-
 const generateArticles = (count, titles, sentences, categories) => {
   return Array(count).fill({}).map(() => ({
     title: arrayUtils.getOneRandomElement(titles),
@@ -67,17 +48,23 @@ const generateArticles = (count, titles, sentences, categories) => {
 module.exports = {
   name: `--generate`,
   async run(args) {
-    const [count] = args;
-    const countOffer = Number.parseInt(count, 10) || ArticleRestrict.DEFAULT_COUNT;
+    try {
+      const [count] = args;
+      const countOffer = Number.parseInt(count, 10) || ArticleRestrict.DEFAULT_COUNT;
 
-    const title = await readContent(FILE_TITLES_PATH);
-    const sentences = await readContent(FILE_SENTENCES_PATH);
-    const categories = await readContent(FILE_CATEGORIES_PATH);
+      const title = await fileUtils.readTextFileToArray(FILE_TITLES_PATH);
+      const sentences = await fileUtils.readTextFileToArray(FILE_SENTENCES_PATH);
+      const categories = await fileUtils.readTextFileToArray(FILE_CATEGORIES_PATH);
 
-    if (countOffer <= ArticleRestrict.MAX_COUNT) {
-      await saveMock(FILE_NAME, generateArticles(countOffer, title, sentences, categories));
-    } else {
-      console.error(chalk.red(`Не больше ${ArticleRestrict.MAX_COUNT} объявлений.`));
+      if (countOffer > ArticleRestrict.MAX_COUNT) {
+        console.error(chalk.red(`Не больше ${ArticleRestrict.MAX_COUNT} объявлений.`));
+        process.exit(ExitCode.ERROR);
+      }
+
+      await fileUtils.writeFileJSON(FILE_NAME, generateArticles(countOffer, title, sentences, categories));
+      console.log(chalk.green(`Operation success. File created.`));
+    } catch (err) {
+      console.error(chalk.red(err));
       process.exit(ExitCode.ERROR);
     }
   }
