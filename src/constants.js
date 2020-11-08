@@ -12,7 +12,6 @@ const HttpStatusCode = {
   INTERNAL_SERVER_ERROR: 500,
   FORBIDDEN: 403,
   UNAUTHORIZED: 401,
-  ERROR: 500
 };
 
 module.exports = {
