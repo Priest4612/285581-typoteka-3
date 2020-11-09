@@ -5,8 +5,8 @@ const {Router} = require(`express`);
 const myRouter = new Router();
 
 
-myRouter.get(`/`, (req, res) => res.send(`${req.baseUrl}${req.route.path}`));
-myRouter.get(`/comments`, (req, res) => res.send(`${req.baseUrl}${req.route.path}`));
+myRouter.get(`/`, (req, res) => res.render(`my/my`));
+myRouter.get(`/comments`, (req, res) => res.render(`my/comments`));
 
 module.exports = {
   myRouter,

@@ -1,0 +1,20 @@
+doctype html
+html(lang='ru')
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    meta(http-equiv='X-UA-Compatible' content='ie=edge')
+    title new publication
+    link(rel='preload' href='./fonts/Inter-Regular.woff2' as='font' crossorigin='anonymous')
+    link(rel='preload' href='./fonts/Inter-Medium.woff2' as='font' crossorigin='anonymous')
+    link(rel='preload' href='./fonts/SFProDisplay-Regular.woff2' as='font' crossorigin='anonymous')
+    link(rel='stylesheet' href='/css/style.min.css')
+
+  body(style='height: 1050px;')
+    .wrapper
+      include ../partials/admin-header
+
+      block content
+
+    script(src='js/vendor.js')
+    script(src='js/main.js')

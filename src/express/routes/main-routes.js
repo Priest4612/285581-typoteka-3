@@ -8,11 +8,11 @@ const {articlesRouter} = require(`./articles-routes`);
 const mainRouter = new Router();
 
 
-mainRouter.get(`/`, (req, res) => res.send(`${req.baseUrl}${req.route.path}`));
-mainRouter.get(`/register`, (req, res) => res.send(`${req.baseUrl}${req.route.path}`));
-mainRouter.get(`/login`, (req, res) => res.send(`${req.baseUrl}${req.route.path}`));
-mainRouter.get(`/search`, (req, res) => res.send(`${req.baseUrl}${req.route.path}`));
-mainRouter.get(`/categories`, (req, res) => res.send(`${req.baseUrl}${req.route.path}`));
+mainRouter.get(`/`, (req, res) => res.render(`main/main`));
+mainRouter.get(`/register`, (req, res) => res.render(`main/sign-up`));
+mainRouter.get(`/login`, (req, res) => res.render(`main/login`));
+mainRouter.get(`/search`, (req, res) => res.render(`main/search`));
+mainRouter.get(`/categories`, (req, res) => res.render(`main/articles-by-category`));
 
 mainRouter.use(`/my`, myRouter);
 mainRouter.use(`/articles`, articlesRouter);
