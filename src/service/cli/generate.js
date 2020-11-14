@@ -1,13 +1,15 @@
 'use strict';
 const chalk = require(`chalk`);
 const path = require(`path`);
+const {nanoid} = require(`nanoid`);
 
 const {
   arrayUtils,
   dateUtils,
   fileUtils,
+  getRandomInt,
 } = require(`../../utils`);
-const {ExitCode} = require(`../../constants`);
+const {ExitCode, MAX_ID_LENGTH} = require(`../../constants`);
 const {PROJECT_DIR} = require(`../../../settings`);
 
 
@@ -18,6 +20,7 @@ const DATA_PATH = path.join(ROOT_PATH, `data`);
 const FILE_TITLES_PATH = path.join(DATA_PATH, `titles.txt`);
 const FILE_SENTENCES_PATH = path.join(DATA_PATH, `sentences.txt`);
 const FILE_CATEGORIES_PATH = path.join(DATA_PATH, `categories.txt`);
+const FILE_COMMENTS_PATH = path.join(DATA_PATH, `comments.txt`);
 
 const ArticleRestrict = {
   DEFAULT_COUNT: 1,
@@ -34,14 +37,27 @@ const DateRestrict = {
   MAX: 3
 };
 
+const CommentRestrict = {
+  MIN: 1,
+  MAX: 4,
+};
 
-const generateArticles = (count, titles, sentences, categories) => {
+const generateComments = (count, comments) => {
   return Array(count).fill({}).map(() => ({
+    id: nanoid(MAX_ID_LENGTH),
+    text: arrayUtils.getOneRandomElement(comments),
+  }));
+};
+
+const generateArticles = (count, titles, sentences, categories, comments) => {
+  return Array(count).fill({}).map(() => ({
+    id: nanoid(MAX_ID_LENGTH),
     title: arrayUtils.getOneRandomElement(titles),
     announce: arrayUtils.getRandomElements(sentences, AnnounceRestrict.MIN, AnnounceRestrict.MAX).join(` `),
     fullText: arrayUtils.getRandomElements(sentences).join(` `),
     createDate: dateUtils.getRandomDate(DateRestrict.MIN, DateRestrict.MAX),
     category: arrayUtils.getRandomElements(categories),
+    comments: generateComments(getRandomInt(CommentRestrict.MIN, CommentRestrict.MAX), comments),
   }));
 };
 
@@ -55,13 +71,14 @@ module.exports = {
       const title = await fileUtils.readTextFileToArray(FILE_TITLES_PATH);
       const sentences = await fileUtils.readTextFileToArray(FILE_SENTENCES_PATH);
       const categories = await fileUtils.readTextFileToArray(FILE_CATEGORIES_PATH);
+      const comments = await fileUtils.readTextFileToArray(FILE_COMMENTS_PATH);
 
       if (countOffer > ArticleRestrict.MAX_COUNT) {
         console.error(chalk.red(`Не больше ${ArticleRestrict.MAX_COUNT} объявлений.`));
         process.exit(ExitCode.ERROR);
       }
 
-      await fileUtils.writeFileJSON(FILE_NAME, generateArticles(countOffer, title, sentences, categories));
+      await fileUtils.writeFileJSON(FILE_NAME, generateArticles(countOffer, title, sentences, categories, comments));
       console.log(chalk.green(`Operation success. File created.`));
     } catch (err) {
       console.error(chalk.red(err));
