@@ -10,11 +10,12 @@ const articleValidator = (req, res, next) => {
   const keysExists = articleKeys.every((key) => keys.includes(key));
 
   if (!keysExists) {
-    res.status(HttpStatusCode.BAD_REQUEST)
+    return res
+      .status(HttpStatusCode.BAD_REQUEST)
       .send(`Bad request`);
   }
 
-  next();
+  return next();
 };
 
 

@@ -49,7 +49,9 @@ const generateComments = (count, comments) => {
   }));
 };
 
-const generateArticles = (count, titles, sentences, categories, comments) => {
+const generateArticles = (count, options) => {
+  const {titles, sentences, categories, comments} = options;
+
   return Array(count).fill({}).map(() => ({
     id: nanoid(MAX_ID_LENGTH),
     title: arrayUtils.getOneRandomElement(titles),
@@ -68,18 +70,21 @@ module.exports = {
       const [count] = args;
       const countOffer = Number.parseInt(count, 10) || ArticleRestrict.DEFAULT_COUNT;
 
-      const title = await fileUtils.readTextFileToArray(FILE_TITLES_PATH);
-      const sentences = await fileUtils.readTextFileToArray(FILE_SENTENCES_PATH);
-      const categories = await fileUtils.readTextFileToArray(FILE_CATEGORIES_PATH);
-      const comments = await fileUtils.readTextFileToArray(FILE_COMMENTS_PATH);
+      const options = {
+        titles: await fileUtils.readTextFileToArray(FILE_TITLES_PATH),
+        sentences: await fileUtils.readTextFileToArray(FILE_SENTENCES_PATH),
+        categories: await fileUtils.readTextFileToArray(FILE_CATEGORIES_PATH),
+        comments: await fileUtils.readTextFileToArray(FILE_COMMENTS_PATH),
+      };
 
       if (countOffer > ArticleRestrict.MAX_COUNT) {
         console.error(chalk.red(`Не больше ${ArticleRestrict.MAX_COUNT} объявлений.`));
         process.exit(ExitCode.ERROR);
       }
 
-      await fileUtils.writeFileJSON(FILE_NAME, generateArticles(countOffer, title, sentences, categories, comments));
+      await fileUtils.writeFileJSON(FILE_NAME, generateArticles(countOffer, options));
       console.log(chalk.green(`Operation success. File created.`));
+
     } catch (err) {
       console.error(chalk.red(err));
       process.exit(ExitCode.ERROR);
