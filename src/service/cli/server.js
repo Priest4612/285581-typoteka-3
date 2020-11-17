@@ -3,7 +3,7 @@
 const chalk = require(`chalk`);
 const express = require(`express`);
 
-const routes = require(`../api`);
+const routes = require(`../api`).app;
 const {getMockData} = require(`../lib/get-mock-data`);
 const {HttpStatusCode, API_PREFIX} = require(`../../constants`);
 const settings = require(`../../../settings`);

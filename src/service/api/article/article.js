@@ -2,13 +2,13 @@
 
 const {Router} = require(`express`);
 
-const {HttpStatusCode} = require(`../../constants`);
-const {articleValidator, articleExists, commentValidator} = require(`../middlewares/`);
+const {HttpStatusCode} = require(`../../../constants`);
+const {articleValidator, articleExists, commentValidator} = require(`../../middlewares`);
 
-
-const route = new Router();
 
 const articleRouter = (app, articleService, commentService) => {
+  const route = new Router();
+
   app.use(`/articles`, route);
 
   route.get(`/`, (req, res) => {

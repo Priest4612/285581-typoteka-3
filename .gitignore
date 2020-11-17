@@ -10,9 +10,10 @@ Thumbs.db
 # Вспомогательные файлы
 *.log*
 node_modules/
+*/service/logs/*
+mock.json
+test.http
+
 
 # Папка с собранными файлами проекта
 build/
-
-mock.json
-test.http
