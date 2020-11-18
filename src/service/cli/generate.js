@@ -1,5 +1,4 @@
 'use strict';
-const chalk = require(`chalk`);
 const path = require(`path`);
 const {nanoid} = require(`nanoid`);
 
@@ -12,6 +11,8 @@ const {
 const {ExitCode, MAX_ID_LENGTH} = require(`../../constants`);
 const {PROJECT_DIR} = require(`../../../settings`);
 
+const {getLogger} = require(`../lib/logger`);
+const logger = getLogger({name: `GENERATE`});
 
 const ROOT_PATH = PROJECT_DIR;
 const FILE_NAME = path.join(ROOT_PATH, `mock.json`);
@@ -78,15 +79,15 @@ module.exports = {
       };
 
       if (countOffer > ArticleRestrict.MAX_COUNT) {
-        console.error(chalk.red(`Не больше ${ArticleRestrict.MAX_COUNT} объявлений.`));
+        logger.error(`Не больше ${ArticleRestrict.MAX_COUNT} объявлений.`);
         process.exit(ExitCode.ERROR);
       }
 
       await fileUtils.writeFileJSON(FILE_NAME, generateArticles(countOffer, options));
-      console.log(chalk.green(`Operation success. File created.`));
+      logger.info(`Operation success. File created.`);
 
     } catch (err) {
-      console.error(chalk.red(err));
+      logger.error(err);
       process.exit(ExitCode.ERROR);
     }
   }

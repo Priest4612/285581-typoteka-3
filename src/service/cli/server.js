@@ -1,27 +1,45 @@
 'use strict';
 
-const chalk = require(`chalk`);
 const express = require(`express`);
 
-const routes = require(`../api`);
+const routes = require(`../api`).app;
 const {getMockData} = require(`../lib/get-mock-data`);
 const {HttpStatusCode, API_PREFIX} = require(`../../constants`);
 const settings = require(`../../../settings`);
+const {getLogger} = require(`../lib/logger`);
 
 const DEFAULT_PORT = settings.DEFAULT_PORT_API;
 
+
+const logger = getLogger({name: `API`});
 const app = express();
 
 app.use(express.json());
+
+app.use((req, res, next) => {
+  logger.debug(`Request on route ${req.url}`);
+  res.on(`finish`, () => {
+    logger.info(`Response status code ${res.statusCode}`);
+  });
+  next();
+});
+
 app.use(API_PREFIX, routes);
 
-app.use((req, res) => res
-  .status(HttpStatusCode.NOT_FOUND)
-  .send(`Not found`));
+app.use((req, res) => {
+  res
+    .status(HttpStatusCode.NOT_FOUND)
+    .send(`Not found`);
+  logger.error(`Route not found: ${req.url}`);
+});
 
-app.use((error, req, res, _next) => res
-  .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
-  .send(`INTERNAL_SERVER_ERROR ${error.message}`));
+app.use((err, req, res, _next) => {
+  res
+    .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+    .send(`INTERNAL_SERVER_ERROR: ${err.message}`);
+
+  logger.error(`An error occured on processing request: ${err.message}`);
+});
 
 
 module.exports = {
@@ -35,14 +53,14 @@ module.exports = {
 
       app.listen(port, (err) => {
         if (err) {
-          return console.error(chalk.red(`Ошибка при создании сервера ${err}`));
+          return logger.error(`Ошибка при создании сервера ${err}`);
         }
 
-        return console.info(chalk.green(`Принимаю подключения на ${port}`));
+        return logger.info(`Принимаю подключения на ${port}`);
       });
 
     } catch (err) {
-      console.error(chalk.red(`Произошла ошибка ${err.message}`));
+      logger.error(`Произошла ошибка ${err.message}`);
       process.exit(1);
     }
   }

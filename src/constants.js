@@ -20,6 +20,12 @@ const HttpStatusCode = {
   INTERNAL_SERVER_ERROR: 500,
 };
 
+const Env = {
+  DEVELOPMENT: `development`,
+  PRODUCTION: `production`,
+};
+
+
 module.exports = {
   USER_ARGV_INDEX,
   DEFAULT_COMMAND,
@@ -27,4 +33,5 @@ module.exports = {
   MAX_ID_LENGTH,
   ExitCode,
   HttpStatusCode,
+  Env,
 };
