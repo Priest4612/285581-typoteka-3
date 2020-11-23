@@ -23,10 +23,17 @@ app.set(`views`, path.resolve(PROJECT_DIR, TEMPLATES_DIR));
 app.use(express.static(path.resolve(PROJECT_DIR, PUBLIC_DIR)));
 
 app.use(`/`, mainRouter);
-app.use((req, res) => res.status(HttpStatusCode.NOT_FOUND).render(`errors/404`));
+
+app.use((req, res) => res
+  .status(HttpStatusCode.BAD_REQUEST)
+  .render(`errors/404.pug`));
+
 app.use((err, req, res, _next) => {
-  logger.error(err.message);
-  res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).render(`errors/500`);
+  logger.error(`errors/500: ${err.message}`);
+
+  res
+    .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+    .render(`errors/500.pug`);
 });
 
 app.listen(DEFAULT_PORT,
