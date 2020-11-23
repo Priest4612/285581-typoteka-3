@@ -13,7 +13,7 @@ block content
                 .new-publication__date-form-division
                   .new-publication__date-block
                     label(for='new-publication-date' aria-label='Календарь')
-                    input#new-publication-date(type='text' name='login' placeholder=apiArticleData.createDate)
+                    input#new-publication-date(type='text' name='createdDate' placeholder=apiArticleData.createDate)
               button.new-publication__button.button.button--colored(type='submit') Опубликовать
             button.popup__button.button.button--popup-close(type='button' aria-label='Закрыть окно')
               | Закрыть
@@ -33,8 +33,11 @@ block content
                       | Обзор
                   button.button.button--transparent Удалить
                 .new-publication__checkbox.new-publication__checkbox--auto
-                  input#checkbox-auto(type='checkbox' name='checkbox-auto')
-                  label(for='checkbox-auto') Автомобили
+
+                  each category, index in apiCategoriesData
+                      input(id=('category-checkbox-' + index) type='checkbox' name='category' value=category checked=(article && article.category ? article.category.includes(category) : false))
+                      label(for=('category-checkbox-' + index)) #{category}
+
                 a.new-publication__form-link.button.button--transparent(href='#') Добавить категорию
               .form__wrapper.form__wrapper--text
                 .form__field.form__field--publication-text

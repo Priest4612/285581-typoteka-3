@@ -33,6 +33,10 @@ class API {
     return this._load(`/categories`);
   }
 
+  search(query) {
+    return this._load(`/search`, {patams: {query}});
+  }
+
 }
 
 
