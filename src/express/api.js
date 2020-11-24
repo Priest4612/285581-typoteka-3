@@ -37,6 +37,13 @@ class API {
     return this._load(`/search`, {patams: {query}});
   }
 
+  async createArticle(data) {
+    return this._load(`/articles`, {
+      method: `POST`,
+      data
+    });
+  }
+
 }
 
 

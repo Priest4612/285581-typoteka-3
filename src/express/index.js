@@ -31,7 +31,7 @@ app.use((req, res) => res
   .render(`errors/404.pug`));
 
 app.use((err, req, res, _next) => {
-  logger.error(`errors/500: ${err.message}`);
+  logger.error(`errors/500: ${err}`);
 
   res
     .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
