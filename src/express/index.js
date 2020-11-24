@@ -4,15 +4,17 @@ const express = require(`express`);
 
 const {getLogger} = require(`../service/lib/logger`);
 
-const settings = require(`../../settings`);
+const {
+  DEFAULT_PORT_FRONT,
+  PROJECT_DIR,
+  PUBLIC_DIR,
+  TEMPLATES_DIR
+} = require(`../../settings`);
 const {mainRouter} = require(`./routes/main-routes`);
 const {HttpStatusCode} = require(`../constants.js`);
 
 
-const DEFAULT_PORT = settings.DEFAULT_PORT_FRONT;
-const PROJECT_DIR = settings.PROJECT_DIR;
-const PUBLIC_DIR = settings.PUBLIC_DIR;
-const TEMPLATES_DIR = settings.TEMPLATES_DIR;
+const DEFAULT_PORT = process.env.PORT || DEFAULT_PORT_FRONT;
 
 const logger = getLogger({name: `EXPRESS`});
 const app = express();
