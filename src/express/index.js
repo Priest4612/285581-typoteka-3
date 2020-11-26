@@ -21,7 +21,6 @@ const app = express();
 
 app.set(`view engine`, `pug`);
 app.set(`views`, path.resolve(PROJECT_DIR, TEMPLATES_DIR));
-
 app.use(express.static(path.resolve(PROJECT_DIR, PUBLIC_DIR)));
 
 app.use(`/`, mainRouter);

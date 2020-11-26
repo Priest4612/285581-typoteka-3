@@ -4,9 +4,12 @@ const {Router} = require(`express`);
 const multer = require(`multer`);
 const path = require(`path`);
 const {nanoid} = require(`nanoid`);
-
 const {PROJECT_DIR, UPLOAD_DIR} = require(`../../../settings`);
+const {formatDate, getTime} = require(`../../utils`).dateUtils;
+const {renderQueryString} = require(`../../utils`).queryUtils;
+
 const IMAGES_DIR = `img`;
+
 const uploadDirAbsolute = path.resolve(PROJECT_DIR, UPLOAD_DIR, IMAGES_DIR);
 
 const storage = multer.diskStorage({
@@ -29,7 +32,7 @@ const logger = getLogger({name: `ARTICLES-ROUTER`});
 articlesRouter.get(`/category/:id`, (req, res) => res.render(`articles/all-categories`));
 
 
-articlesRouter.get(`/edit/:id`, async (req, res) => {
+articlesRouter.get(`/edit/:id`, async (req, res, next) => {
   try {
     const {id} = req.params;
     const [apiArticleData, apiCategoriesData] = await Promise.all([
@@ -38,32 +41,51 @@ articlesRouter.get(`/edit/:id`, async (req, res) => {
     ]);
     res.render(`articles/edit`, {apiArticleData, apiCategoriesData});
   } catch (error) {
-    res.render(`errors/404`);
     logger.error(error);
+    next(error);
   }
 });
 
 articlesRouter.get(`/add`, async (req, res) => {
   const apiCategoriesData = await api.getCategories();
-  res.render(`articles/new-post`, {apiCategoriesData});
+  const currentDate = formatDate(new Date()).split(` `)[0];
+  res.render(`articles/new-post`, {
+    apiCategoriesData,
+    currentDate,
+    prevArticleData: Object.keys(req.query).length === 0 ? null : req.query,
+  });
 });
 
 articlesRouter.post(`/add`, upload.single(`picture`), async (req, res) => {
-  const {body} = req;
+  const {body, file} = req;
+  const currentTime = getTime(new Date());
   const articleData = {
     title: body.title,
     announce: body.announce,
     fullText: body.fullText,
-    createDate: body.createDate,
+    createDate: `${body.createDate}, ${currentTime}`,
     category: body.category || [],
   };
+
+  if (file) {
+    articleData.picture = file.filename;
+  }
+
+  if (typeof articleData.category === `string`) {
+    articleData.category = [articleData.category];
+  }
 
   try {
     await api.createArticle(articleData);
     res.redirect(`/my`);
   } catch (error) {
     logger.error(`Ошибка добавления поста: ${error.message}`);
-    res.redirect(`back`);
+    res.redirect(
+        `/articles/add${renderQueryString({
+          ...articleData,
+          createDate: body.createDate,
+        })}`
+    );
   }
 });
 

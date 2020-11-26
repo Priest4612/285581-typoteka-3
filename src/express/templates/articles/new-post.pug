@@ -13,7 +13,17 @@ block content
                 .new-publication__date-form-division
                   .new-publication__date-block
                     label(for='new-publication-date' aria-label='Календарь')
-                    input#new-publication-date(type='text' name='createDate' value=`21.03.2019` placeholder='21.03.2019')
+
+                    input#new-publication-date(
+                      type='text' name='createDate'
+                      value=(
+                        prevArticleData
+                          ? prevArticleData.createDate
+                          : currentDate
+                      ),
+                      placeholder=currentDate
+                    )
+
               button.new-publication__button.button.button--colored(type='submit') Опубликовать
             button.popup__button.button.button--popup-close(type='button' aria-label='Закрыть окно')
               | Закрыть
@@ -22,26 +32,55 @@ block content
               .form__wrapper.form__wrapper--intro
                 .form__field
                   label
-                    input(type='text' placeholder='Заголовок' name='title', required='')
+                    input(
+                      type='text' placeholder='Заголовок'
+                      value=(
+                        prevArticleData
+                          ? prevArticleData.title
+                          : ''
+                      )
+                      name='title', required=''
+                    )
+
                 .form__field.form__field--post-image
                   label
-                    input#image-name-field(type='text' placeholder='Фотография' readonly='')
+                    input#image-name-field(
+                      type='text' placeholder='Фотография'
+                      value=(
+                        prevArticleData
+                          ? prevArticleData.picture
+                          : ''
+                      )
+                      readonly=''
+                    )
                   .form__image-loader.form__image-loader--publication
+
                     label
                       input.visually-hidden(type='file', name='picture')
                       | Обзор
 
-                each apiCategory, index in apiCategoriesData
+                each apiCategory in apiCategoriesData
                   .new-publication__checkbox.new-publication__checkbox--auto
-                    input(type='checkbox', value=`${apiCategory}`, name='category', id=`checkbox-auto-${index}` checked=false )
-                    label(for=`checkbox-auto-${index}`) #{apiCategory}
+                    input(
+                      type='checkbox' name='category'
+                      value=`${apiCategory}`
+                      id=`checkbox-auto-${apiCategory}`
+                      checked=(
+                        prevArticleData
+                          ? prevArticleData.category.includes(apiCategory)
+                          : false
+                      )
+                    )
+
+                    label(for=`checkbox-auto-${apiCategory}`) #{apiCategory}
                 a.new-publication__form-link.button.button--transparent(href='#') Добавить категорию
 
               .form__wrapper.form__wrapper--text
                 .form__field.form__field--publication-text
                   label
-                    textarea(rows='1' placeholder='Анонс публикации' name='announce')
+                    textarea(rows='1' placeholder='Анонс публикации' name='announce') #{prevArticleData ? prevArticleData.announce : ''}
+
                 .form__field.form__field--publication-text
                   label
-                    textarea(rows='1' placeholder='Полный текст публикации' name='fullText')
+                    textarea(rows='1' placeholder='Полный текст публикации' name='fullText') #{prevArticleData ? prevArticleData.fullText : ''}
       .modal__overlay

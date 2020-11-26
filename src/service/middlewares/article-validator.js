@@ -2,18 +2,35 @@
 
 const {HttpStatusCode} = require(`../../constants.js`);
 
-const articleKeys = [`title`, `announce`, `fullText`, `createDate`, `category`];
+const articleRequiredKeys = [
+  `title`, `announce`, `fullText`, `createDate`, `category`
+];
+
+const articleNonRequiredKeys = [`picture`];
 
 const articleValidator = (req, res, next) => {
-  const newArticle = req.body;
-  const keys = Object.keys(newArticle);
-  const keysExists = articleKeys.every((key) => keys.includes(key));
+  let filteredData;
 
-  if (!keysExists) {
-    return res
-      .status(HttpStatusCode.BAD_REQUEST)
-      .send(`Bad request`);
+  filteredData = articleRequiredKeys.reduce((acc, key) => {
+    if (req.body[key]) {
+      acc[key] = req.body[key];
+    }
+    return acc;
+  }, {});
+  const articleKeys = Object.keys(filteredData);
+  const isRequiredKeysMatch = articleRequiredKeys.every((key) =>
+    articleKeys.includes(key)
+  );
+
+  if (!isRequiredKeysMatch) {
+    return res.status(HttpStatusCode.BAD_REQUEST).send(`BAD REQUEST`);
   }
+
+  articleNonRequiredKeys.forEach((key) => {
+    filteredData[key] = req.body[key];
+  });
+
+  req.body = filteredData;
 
   return next();
 };
