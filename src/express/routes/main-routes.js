@@ -8,6 +8,8 @@ const {articlesRouter} = require(`./articles-routes`);
 const mainRouter = new Router();
 const api = require(`../api`).getAPI();
 
+const {getLogger} = require(`../../service/lib/logger`);
+const logger = getLogger({name: `SEARCH-ROUTER`});
 
 mainRouter.get(`/`, async (req, res) => {
   const apiArticlesData = await api.getArticles();
@@ -26,6 +28,7 @@ mainRouter.get(`/search`, async (req, res) => {
       results, search
     });
   } catch (error) {
+    logger.error(error);
     res.render(`main/search`, {
       results: [], search
     });
