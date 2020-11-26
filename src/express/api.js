@@ -31,7 +31,7 @@ class API {
   }
 
   search(query) {
-    return this._load(`/search`, {patams: {query}});
+    return this._load(`/search`, {params: {query}});
   }
 
   async createArticle(data) {
