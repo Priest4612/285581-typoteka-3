@@ -3,12 +3,9 @@
 const express = require(`express`);
 
 const routes = require(`../api`).app;
-const {getMockData} = require(`../lib/get-mock-data`);
 const {HttpStatusCode, API_PREFIX} = require(`../../constants`);
-const settings = require(`../../../settings`);
+const {DEFAULT_PORT_API} = require(`../../../settings`);
 const {getLogger} = require(`../lib/logger`);
-
-const DEFAULT_PORT = settings.DEFAULT_PORT_API;
 
 
 const logger = getLogger({name: `API`});
@@ -46,11 +43,9 @@ module.exports = {
   name: `--server`,
   async run(args) {
     const [customPort] = args;
-    const port = Number.parseInt(customPort, 10) || DEFAULT_PORT;
+    const port = Number.parseInt(customPort, 10) || DEFAULT_PORT_API;
 
     try {
-      await getMockData();
-
       app.listen(port, (err) => {
         if (err) {
           return logger.error(`Ошибка при создании сервера ${err}`);

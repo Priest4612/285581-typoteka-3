@@ -18,9 +18,12 @@ const searchRouter = (app, service) => {
     }
 
     const searchResults = service.findAll(query);
-    const searchStatus = searchResults.length > 0 ? HttpStatusCode.OK : HttpStatusCode.NOT_FOUND;
+    const searchStatus = searchResults.length > 0
+      ? HttpStatusCode.OK
+      : HttpStatusCode.NOT_FOUND;
 
-    res.status(searchStatus)
+    res
+      .status(searchStatus)
       .json(searchResults);
   });
 };
