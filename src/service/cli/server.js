@@ -1,13 +1,14 @@
 'use strict';
 
 const express = require(`express`);
+const {testConnect} = require(`../db-service/db-connect`);
 
 const routes = require(`../api`).app;
 const {HttpStatusCode, API_PREFIX} = require(`../../constants`);
 const {DEFAULT_PORT_API} = require(`../../../settings`);
+
+
 const {getLogger} = require(`../lib/logger`);
-
-
 const logger = getLogger({name: `API`});
 const app = express();
 
@@ -50,7 +51,7 @@ module.exports = {
         if (err) {
           return logger.error(`Ошибка при создании сервера ${err}`);
         }
-
+        testConnect();
         return logger.info(`Принимаю подключения на ${port}`);
       });
 
