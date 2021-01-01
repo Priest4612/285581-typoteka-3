@@ -25,3 +25,6 @@ build/
 # Директория с загруженными изображениями
 */express/upload/img/*.*
 !*/express/upload/img/.gitkeep
+
+# Файл с переменными окружениями
+.env

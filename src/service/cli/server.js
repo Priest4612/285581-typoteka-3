@@ -1,14 +1,14 @@
 'use strict';
 
 const express = require(`express`);
-const {testConnect} = require(`../db-service/db-connect`);
+const {sequelize} = require(`../lib/sequelize`);
 
 const routes = require(`../api`).app;
-const {HttpStatusCode, API_PREFIX} = require(`../../constants`);
+const {ExitCode, HttpStatusCode, API_PREFIX} = require(`../../constants`);
 const {DEFAULT_PORT_API} = require(`../../../settings`);
-
-
 const {getLogger} = require(`../lib/logger`);
+
+
 const logger = getLogger({name: `API`});
 const app = express();
 
@@ -44,20 +44,29 @@ module.exports = {
   name: `--server`,
   async run(args) {
     const [customPort] = args;
-    const port = Number.parseInt(customPort, 10) || DEFAULT_PORT_API;
+    const DEFAUL_PORT = process.env.API_PORT || DEFAULT_PORT_API;
+    const port = Number.parseInt(customPort, 10) || DEFAUL_PORT;
+
+    try {
+      logger.info(`Подключение к базе данных...`);
+      await sequelize.authenticate();
+      logger.info(`Соединение с базой данных установлено`);
+    } catch (err) {
+      logger.error(`Произошла ошибка: ${err}`);
+      process.exit(ExitCode.ERROR);
+    }
 
     try {
       app.listen(port, (err) => {
         if (err) {
           return logger.error(`Ошибка при создании сервера ${err}`);
         }
-        testConnect();
         return logger.info(`Принимаю подключения на ${port}`);
       });
 
     } catch (err) {
       logger.error(`Произошла ошибка ${err.message}`);
-      process.exit(1);
+      process.exit(ExitCode.ERROR);
     }
   }
 };

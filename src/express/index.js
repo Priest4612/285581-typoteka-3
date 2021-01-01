@@ -14,7 +14,7 @@ const {mainRouter} = require(`./routes/main-routes`);
 const {HttpStatusCode} = require(`../constants.js`);
 
 
-const DEFAULT_PORT = process.env.PORT || DEFAULT_PORT_FRONT;
+const port = process.env.FRONT_PORT || DEFAULT_PORT_FRONT;
 
 const logger = getLogger({name: `EXPRESS`});
 const app = express();
@@ -37,5 +37,5 @@ app.use((err, req, res, _next) => {
     .render(`errors/500.pug`);
 });
 
-app.listen(DEFAULT_PORT,
-    () => logger.info(`Сервер запущен на порту: ${DEFAULT_PORT}`));
+app.listen(port,
+    () => logger.info(`Сервер запущен на порту: ${port}`));
