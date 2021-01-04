@@ -13,6 +13,7 @@ node_modules/
 *.http
 */service/logs/*
 !*/service/logs/.gitkeep
+.env
 
 # Моковые данные
 mock.json
@@ -24,3 +25,6 @@ build/
 # Директория с загруженными изображениями
 */express/upload/img/*.*
 !*/express/upload/img/.gitkeep
+
+# Файл с переменными окружениями
+.env
