@@ -5,6 +5,7 @@ const generate = require(`./generate`);
 const version = require(`./version`);
 const server = require(`./server`);
 const initDb = require(`./init-db`);
+const fillDb = require(`./fill-db`);
 
 const Cli = {
   [generate.name]: generate,
@@ -12,6 +13,7 @@ const Cli = {
   [version.name]: version,
   [server.name]: server,
   [initDb.name]: initDb,
+  [fillDb.name]: fillDb,
 };
 
 module.exports = {
