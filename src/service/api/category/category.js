@@ -8,10 +8,11 @@ const route = new Router();
 const categoryRouter = (app, categoryService) => {
   app.use(`/categories`, route);
 
-  route.get(`/`, (req, res) => {
-    const categories = categoryService.findAll();
-    return res
-      .status(HttpStatusCode.OK)
+  route.get(`/`, async (req, res) => {
+    const {count} = req.query;
+
+    const categories = await categoryService.findAll(count);
+    return res.status(HttpStatusCode.OK)
       .json(categories);
   });
 };

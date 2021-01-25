@@ -11,14 +11,15 @@ const articleRouter = (app, articleService, commentService) => {
 
   app.use(`/articles`, route);
 
-  route.get(`/`, (req, res) => {
-    const articles = articleService.findAll();
+  route.get(`/`, async (req, res) => {
+    const {count} = req.query;
+    const articles = await articleService.findAll(count);
     return res
       .status(HttpStatusCode.OK)
       .json(articles);
   });
 
-  route.get(`/:articleId`, (req, res) => {
+/*   route.get(`/:articleId`, (req, res) => {
     const {articleId} = req.params;
     const article = articleService.findOne(articleId);
 
@@ -106,7 +107,7 @@ const articleRouter = (app, articleService, commentService) => {
     return res
       .status(HttpStatusCode.CREATED)
       .json(comment);
-  });
+  }); */
 };
 
 module.exports = {

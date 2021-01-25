@@ -1,19 +1,28 @@
 'use strict';
 
-const {nanoid} = require(`nanoid`);
-const {MAX_ID_LENGTH} = require(`../../constants`);
+const Alias = require(`../models/alias`);
+
+/* const {nanoid} = require(`nanoid`);
+const {MAX_ID_LENGTH} = require(`../../constants`); */
 
 
 class ArticleService {
-  constructor(articles) {
-    this._articles = articles;
+  constructor(sequelize) {
+    this._Article = sequelize.models.Article;
   }
 
-  findAll() {
-    return this._articles;
+  async findAll(needCount) {
+    const include = [Alias.IMAGES, Alias.CATEGORIES, Alias.COMMENTS];
+    let result = [];
+    if (needCount) {
+      return result;
+    } else {
+      result = await this._Article.findAll({include});
+      return result.map((it) => it.get());
+    }
   }
 
-  findOne(id) {
+/*   findOne(id) {
     return this._articles
       .find((item) => item.id === id);
   }
@@ -45,7 +54,7 @@ class ArticleService {
       .filter((item) => item.id !== id);
 
     return article;
-  }
+  } */
 }
 
 
