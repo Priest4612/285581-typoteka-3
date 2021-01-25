@@ -1,237 +1,121 @@
 'use strict';
 
-const path = require(`path`);
-const {ExitCode} = require(`../../constants`);
+const faker = require(`faker`);
 const {sequelize} = require(`../lib/sequelize`);
-const {getRandomInt, arrayUtils, dateUtils} = require(`../../utils`);
-const {readTextFileToArray} = require(`../../utils`).fileUtils;
 const {getLogger} = require(`../lib/logger`);
-const {initDb, db} = require(`../db-service/db`);
+const {nanoid} = require(`nanoid`);
+const defineModels = require(`../models`);
+const Alias = require(`../models/alias`);
 
-const {PROJECT_DIR} = require(`../../../settings`);
-const DATA_PATH = path.join(PROJECT_DIR, `data`);
-const FILE_TITLES_PATH = path.join(DATA_PATH, `titles.txt`);
-const FILE_SENTENCES_PATH = path.join(DATA_PATH, `sentences.txt`);
-const FILE_CATEGORIES_PATH = path.join(DATA_PATH, `categories.txt`);
-const FILE_COMMENTS_PATH = path.join(DATA_PATH, `comments.txt`);
-const FILE_FIRSTNAME_PATH = path.join(DATA_PATH, `firstname.txt`);
-const FILE_LASTNAME_PATH = path.join(DATA_PATH, `lastname.txt`);
-const FILE_PASSWORD_PATH = path.join(DATA_PATH, `password.txt`);
-const FILE_AVATAR_PATH = path.join(DATA_PATH, `avatar-img.txt`);
-const FILE_ITEM_IMG_PATH = path.join(DATA_PATH, `item-img.txt`);
-const FILE_USER_ROLE_PATH = path.join(DATA_PATH, `user-role.txt`);
+const {
+  getRandomInt,
+  arrayUtils: {
+    getOneRandomElement,
+    getRandomElements,
+  },
+  fileUtils: {
+    readTextFileToArray,
+  },
+} = require(`../../utils`);
+
+const {
+  ExitCode,
+  GenerateFileRequirements: {
+    DEFAULT_ARTICLES_COUNT,
+    MAX_ARTICLES_COUNT,
+    MAX_ARTICLES_MESSAGE,
+    MAX_COMMENTS,
+    MAX_USERS,
+    MIN_ANNOUNCE_STRING,
+    MAX_ANNOUNCE_STRING,
+  },
+  DataFilePath,
+} = require(`../../constants`);
 
 
-const ArticleRestrict = {
-  DEFAULT_COUNT: 10,
-  MAX_COUNT: 1000,
-};
+const generateUserRoles = (userRoles) =>
+  userRoles.map((role) => ({name: role}));
 
+const generateCategories = (categories) =>
+  categories.map((category) => ({name: category}));
 
-const generateCategories = (...options) => {
-  const [categories] = options;
-  const count = categories.length;
-
-  return Array(count).fill({}).map((_item, index) => ({
-    id: index + 1,
-    category: categories[index],
+const generateUsers = (roles) =>
+  Array(MAX_USERS).fill({}).map((_item, index) => ({
+    userRoleId: index === 0 ? roles[0].id : roles[1].id,
+    firstname: `${faker.name.firstName()}`,
+    lastname: `${faker.name.lastName()}`,
+    email: `${faker.internet.email()}`,
+    password: nanoid(getRandomInt(6, 15)),
+    avatar: `/img/avatar-${index + 1}.png`
   }));
-};
 
-
-const generateUserRoles = (...options) => {
-  const [userRoles] = options;
-  const count = userRoles.length;
-
-  return Array(count).fill({}).map((_item, index) => ({
-    id: index + 1,
-    role: userRoles[index],
+const generateArticles = (count, title, sentences, images, comments, categories, users) =>
+  Array(count).fill({}).map(() => ({
+    title: getOneRandomElement(title),
+    announce: getRandomElements(sentences, MIN_ANNOUNCE_STRING, MAX_ANNOUNCE_STRING).join(` `),
+    fullText: getRandomElements(sentences).join(` `),
+    userId: getOneRandomElement(users).id,
+    categories: getRandomElements(categories).map((category) => category.id),
+    [Alias.IMAGES]: ({path: `/img/${getOneRandomElement(images)}`}),
+    [Alias.COMMENTS]: Array(getRandomInt(1, MAX_COMMENTS))
+      .fill({})
+      .map(() => ({
+        text: getRandomElements(comments).join(` `),
+        userId: getOneRandomElement(users).id,
+      }))
   }));
-};
-
-
-const generateUsers = (count, options) => {
-  const {firstnames, lastnames, roles, passwords, avatars} = options;
-
-  return Array(count).fill({}).map((_item, index) => ({
-    id: index + 1,
-    userRoleId: index !== 0 ? roles[1].id : roles[0].id,
-    firstname: arrayUtils.getOneRandomElement(firstnames),
-    lastname: arrayUtils.getOneRandomElement(lastnames),
-    email: `email-${getRandomInt(1, passwords.length)}@not-email-test.test`,
-    password: arrayUtils.getOneRandomElement(passwords),
-    avatar: avatars[index],
-  }));
-};
-
-
-const generateAtricles = (count, options) => {
-  const {titles, sentences, DateRestrict, users} = options;
-
-  const AnnounceRestrict = {
-    MIN: 1,
-    MAX: 2,
-  };
-
-  return Array(count).fill({}).map((_item, index) => ({
-    id: index + 1,
-    title: arrayUtils.getOneRandomElement(titles),
-    announce: arrayUtils.getRandomElements(sentences, AnnounceRestrict.MIN, AnnounceRestrict.MAX).join(` `),
-    fullText: arrayUtils.getRandomElements(sentences).join(` `),
-    regdate: dateUtils.getRandomDate(DateRestrict.MIN, DateRestrict.MAX),
-    userId: users[0].id,
-  }));
-};
-
-
-const generateImages = (options) => {
-  const {images, articles} = options;
-  const count = articles.length;
-
-  return Array(count).fill({}).map((_item, index) => ({
-    id: index + 1,
-    image: `/img/${arrayUtils.getOneRandomElement(images)}`,
-    articleId: articles[index].id,
-  }));
-};
-
-
-const generateArticleToCategories = (...options) => {
-  const [articles, categories] = options;
-  const offerToCategories = [];
-
-  for (let i = 0; i < articles.length; i++) {
-    for (let j = 0; j < categories.length; j++) {
-      const isWrite = Math.random() > 0.65;
-      if (isWrite) {
-        const recording = {
-          articleId: i + 1,
-          categoryId: j + 1,
-        };
-        offerToCategories.push(recording);
-      }
-    }
-  }
-
-  return offerToCategories;
-};
-
-
-const generateComments = (options) => {
-  const CommentsRestrict = {
-    MIN: 1,
-    MAX: 4,
-  };
-  const {data, DateRestrict, users, articles} = options;
-  const comments = [];
-  let currentId = 0;
-  for (let i = 0; i < articles.length; i++) {
-    const countComments = getRandomInt(CommentsRestrict.MIN, CommentsRestrict.MAX);
-
-    for (let j = 0; j < countComments; j++) {
-      currentId = currentId + 1;
-      const comment = {
-        id: currentId,
-        comment: arrayUtils.getOneRandomElement(data),
-        createDate: dateUtils.getRandomDate(DateRestrict.MIN, DateRestrict.MAX),
-        userId: arrayUtils.getOneRandomElement(users).id,
-        articleId: i + 1,
-      };
-      comments.push(comment);
-    }
-  }
-  return comments;
-};
-
 
 module.exports = {
-  name: `--fill-db`,
+  name: `--filldb`,
   async run(args) {
-    const logger = getLogger({name: `GENERATE`});
+    const logger = getLogger({name: `FILL-DB`});
 
     try {
+      const {Category, Article, UserRole, User} = defineModels(sequelize);
+      await sequelize.sync({force: true});
+
       const [count] = args;
-      const countArticle = Number.parseInt(count, 10) || ArticleRestrict.DEFAULT_COUNT;
+      const countArticle = Number.parseInt(count, 10) || DEFAULT_ARTICLES_COUNT;
 
-      const categories = generateCategories(await readTextFileToArray(FILE_CATEGORIES_PATH));
+      if (countArticle > MAX_ARTICLES_COUNT) {
+        logger.error(MAX_ARTICLES_MESSAGE);
+        process.exit(ExitCode.ERROR);
+      }
 
-      const userRoles = generateUserRoles(await readTextFileToArray(FILE_USER_ROLE_PATH));
+      const [sentencesContent, titlesContent, categoriesContent, commentsContent, userRolesContent, imagesContent] = await Promise.all([
+        readTextFileToArray(DataFilePath.SENTENCES),
+        readTextFileToArray(DataFilePath.TITLES),
+        readTextFileToArray(DataFilePath.CATEGORIES),
+        readTextFileToArray(DataFilePath.COMMENTS),
+        readTextFileToArray(DataFilePath.USER_ROLES),
+        readTextFileToArray(DataFilePath.ITEM_IMG)
+      ]);
 
+      const [roles, categories] = await Promise.all([
+        UserRole.bulkCreate(generateUserRoles(userRolesContent)),
+        Category.bulkCreate(generateCategories(categoriesContent))
+      ]);
 
-      const UserRestrict = {
-        MIN: 1,
-        MAX: 5,
-      };
+      const users = await User.bulkCreate(generateUsers(roles));
 
-      const userOptions = {
-        firstnames: await readTextFileToArray(FILE_FIRSTNAME_PATH),
-        lastnames: await readTextFileToArray(FILE_LASTNAME_PATH),
-        roles: userRoles,
-        passwords: await readTextFileToArray(FILE_PASSWORD_PATH),
-        avatars: await readTextFileToArray(FILE_AVATAR_PATH),
-      };
+      const generatedArticles = generateArticles(
+          countArticle,
+          titlesContent,
+          sentencesContent,
+          imagesContent,
+          commentsContent,
+          categories,
+          users
+      );
 
-      const users = generateUsers(UserRestrict.MAX, userOptions);
-
-
-      const DateRestrict = {
-        MIN: 0,
-        MAX: 3
-      };
-
-      const articleOptions = {
-        titles: await readTextFileToArray(FILE_TITLES_PATH),
-        sentences: await readTextFileToArray(FILE_SENTENCES_PATH),
-        DateRestrict,
-        users,
-      };
-
-      const articles = generateAtricles(countArticle, articleOptions);
-
-
-      const imageOptions = {
-        images: await readTextFileToArray(FILE_ITEM_IMG_PATH),
-        articles,
-      };
-
-      const images = generateImages(imageOptions);
-
-      const articleToCategories = generateArticleToCategories(articles, categories);
-
-
-      const commentOptions = {
-        data: await readTextFileToArray(FILE_COMMENTS_PATH),
-        DateRestrict,
-        users,
-        articles,
-      };
-
-      const comments = generateComments(commentOptions);
-
-
-      await initDb();
-      logger.info(`Заполняем таблицы:`);
-      logger.info(`Категории`);
-      await db.Category.bulkCreate(categories);
-      logger.info(`Успешно!`);
-      logger.info(`Роли пользователей`);
-      await db.UserRole.bulkCreate(userRoles);
-      logger.info(`Успешно!`);
-      logger.info(`Пользователи`);
-      await db.User.bulkCreate(users);
-      logger.info(`Успешно!`);
-      logger.info(`Публикации`);
-      await db.Article.bulkCreate(articles);
-      logger.info(`Успешно!`);
-      logger.info(`Изображения`);
-      await db.Image.bulkCreate(images);
-      logger.info(`Успешно!`);
-      logger.info(`Связь между публикациями и категориями`);
-      await db.ArticleToCategory.bulkCreate(articleToCategories);
-      logger.info(`Успешно!`);
-      logger.info(`Комментарии`);
-      await db.Comment.bulkCreate(comments);
-      logger.info(`Успешно!`);
+      await Promise.all(
+          generatedArticles
+            .map(async (article) => {
+              const createdArticle = await Article.create(article, {include: [Alias.IMAGES, Alias.COMMENTS]});
+              await createdArticle.addCategories(article.categories);
+            })
+      );
+      logger.info(`База данныз заполнена данными`);
       await sequelize.close();
     } catch (err) {
       logger.error(err);

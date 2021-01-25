@@ -1,5 +1,8 @@
 'use strict';
 
+const resolvePath = require(`path`).resolve;
+const {PROJECT_DIR} = require(`../settings`);
+
 const USER_ARGV_INDEX = 2;
 const DEFAULT_COMMAND = `--help`;
 const API_PREFIX = `/api`;
@@ -26,6 +29,29 @@ const Env = {
 };
 
 
+const DATA_PATH = resolvePath(PROJECT_DIR, `data`);
+
+const DataFilePath = {
+  SENTENCES: resolvePath(DATA_PATH, `sentences.txt`),
+  TITLES: resolvePath(DATA_PATH, `titles.txt`),
+  CATEGORIES: resolvePath(DATA_PATH, `categories.txt`),
+  COMMENTS: resolvePath(DATA_PATH, `comments.txt`),
+  USER_ROLES: resolvePath(DATA_PATH, `user-role.txt`),
+  ITEM_IMG: resolvePath(DATA_PATH, `item-img.txt`),
+};
+
+const GenerateFileRequirements = {
+  DEFAULT_ARTICLES_COUNT: 1,
+  MAX_ARTICLES_COUNT: 1000,
+  MAX_ARTICLES_MESSAGE: `Не больше 1000 объявлений`,
+  MONTH_INTERVAL: 3,
+  MAX_COMMENTS: 4,
+  MAX_USERS: 5,
+  MIN_ANNOUNCE_STRING: 1,
+  MAX_ANNOUNCE_STRING: 2,
+};
+
+
 module.exports = {
   USER_ARGV_INDEX,
   DEFAULT_COMMAND,
@@ -34,4 +60,6 @@ module.exports = {
   ExitCode,
   HttpStatusCode,
   Env,
+  DataFilePath,
+  GenerateFileRequirements
 };
