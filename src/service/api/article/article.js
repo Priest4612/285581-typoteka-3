@@ -42,9 +42,9 @@ const articleRouter = (app, articleService, commentService) => {
       .json(article);
   });
 
-  route.put(`/:articleId`, articleValidator, (req, res) => {
+  route.put(`/:articleId`, articleValidator, async (req, res) => {
     const {articleId} = req.params;
-    const existArticle = articleService.findOne(articleId);
+    const existArticle = await articleService.findOne(articleId);
 
     if (!existArticle) {
       return res
@@ -52,16 +52,16 @@ const articleRouter = (app, articleService, commentService) => {
         .send(`Not found with ${articleId}`);
     }
 
-    const updateArticle = articleService.update(articleId, req.body);
+    const updateArticle = await articleService.update(articleId, req.body);
 
     return res
       .status(HttpStatusCode.OK)
       .json(updateArticle);
   });
 
-  route.delete(`/:articleId`, (req, res) => {
+  route.delete(`/:articleId`, async (req, res) => {
     const {articleId} = req.params;
-    const article = articleService.drop(articleId);
+    const article = await articleService.drop(articleId);
 
     if (!article) {
       return res
@@ -75,19 +75,18 @@ const articleRouter = (app, articleService, commentService) => {
 
   });
 
-  route.get(`/:articleId/comments`, articleExists(articleService), (req, res) => {
-    const {article} = res.locals;
-    const comments = commentService.findAll(article);
+  route.get(`/:articleId/comments`, articleExists(articleService), async (req, res) => {
+    const {articleId} = req.params;
+    const comments = await commentService.findAll(articleId);
 
     return res
       .status(HttpStatusCode.OK)
       .json(comments);
   });
 
-  route.delete(`/:articleId/comments/:commentId`, articleExists(articleService), (req, res) => {
-    const {article} = res.locals;
+  route.delete(`/:articleId/comments/:commentId`, articleExists(articleService), async (req, res) => {
     const {commentId} = req.params;
-    const deletedComment = commentService.drop(article, commentId);
+    const deletedComment = await commentService.drop(commentId);
 
     if (!deletedComment) {
       return res
@@ -95,14 +94,13 @@ const articleRouter = (app, articleService, commentService) => {
         .send(`Not found with ${commentId}`);
     }
 
-    return res
-      .status(HttpStatusCode.OK)
+    return res.status(HttpStatusCode.OK)
       .json(deletedComment);
   });
 
-  route.post(`/:articleId/comments`, [articleExists(articleService), commentValidator], (req, res) => {
-    const {article} = res.locals;
-    const comment = commentService.create(article, req.body);
+  route.post(`/:articleId/comments`, [articleExists(articleService), commentValidator], async (req, res) => {
+    const {articleId} = req.params;
+    const comment = await commentService.create(articleId, req.body);
 
     return res
       .status(HttpStatusCode.CREATED)
