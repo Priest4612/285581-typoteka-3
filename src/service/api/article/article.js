@@ -75,7 +75,7 @@ const articleRouter = (app, articleService, commentService) => {
 
   });
 
-  /* route.get(`/:articleId/comments`, articleExists(articleService), (req, res) => {
+  route.get(`/:articleId/comments`, articleExists(articleService), (req, res) => {
     const {article} = res.locals;
     const comments = commentService.findAll(article);
 
@@ -107,7 +107,7 @@ const articleRouter = (app, articleService, commentService) => {
     return res
       .status(HttpStatusCode.CREATED)
       .json(comment);
-  }); */
+  });
 };
 
 module.exports = {
