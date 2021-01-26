@@ -45,7 +45,7 @@ const GenerateFileRequirements = {
   MAX_ARTICLES_COUNT: 1000,
   MAX_ARTICLES_MESSAGE: `Не больше 1000 объявлений`,
   MONTH_INTERVAL: 3,
-  MAX_COMMENTS: 4,
+  MAX_COMMENTS: 15,
   MAX_USERS: 5,
   MIN_ANNOUNCE_STRING: 1,
   MAX_ANNOUNCE_STRING: 2,

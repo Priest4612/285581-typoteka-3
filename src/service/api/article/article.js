@@ -12,16 +12,16 @@ const articleRouter = (app, articleService, commentService) => {
   app.use(`/articles`, route);
 
   route.get(`/`, async (req, res) => {
-    const {count} = req.query;
+    const {count} = req.params;
     const articles = await articleService.findAll(count);
     return res
       .status(HttpStatusCode.OK)
       .json(articles);
   });
 
-/*   route.get(`/:articleId`, (req, res) => {
+  route.get(`/:articleId`, async (req, res) => {
     const {articleId} = req.params;
-    const article = articleService.findOne(articleId);
+    const article = await articleService.findOne(articleId);
 
     if (!article) {
       return res
@@ -34,8 +34,8 @@ const articleRouter = (app, articleService, commentService) => {
       .json(article);
   });
 
-  route.post(`/`, articleValidator, (req, res) => {
-    const article = articleService.create(req.body);
+  route.post(`/`, articleValidator, async (req, res) => {
+    const article = await articleService.create(req.body);
 
     return res
       .status(HttpStatusCode.CREATED)
@@ -75,7 +75,7 @@ const articleRouter = (app, articleService, commentService) => {
 
   });
 
-  route.get(`/:articleId/comments`, articleExists(articleService), (req, res) => {
+  /* route.get(`/:articleId/comments`, articleExists(articleService), (req, res) => {
     const {article} = res.locals;
     const comments = commentService.findAll(article);
 
