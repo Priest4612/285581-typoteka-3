@@ -2,8 +2,6 @@
 
 const Alias = require(`../models/alias`);
 const Sequelize = require(`sequelize`);
-/* const {nanoid} = require(`nanoid`);
-const {MAX_ID_LENGTH} = require(`../../constants`); */
 
 
 class ArticleService {
@@ -70,7 +68,6 @@ class ArticleService {
 
   async create(articleData) {
     const article = await this._Article.create(articleData, {include: [Alias.IMAGES]});
-
     await article.addCategories(articleData.categories);
     return article.get();
   }
@@ -84,11 +81,11 @@ class ArticleService {
   }
 
   async drop(id) {
-    const deleteRows = await this._Article.destroy({
+    const deletedRows = await this._Article.destroy({
       where: {id}
     });
 
-    return !!deleteRows;
+    return !!deletedRows;
   }
 }
 

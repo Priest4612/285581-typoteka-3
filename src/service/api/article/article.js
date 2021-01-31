@@ -1,9 +1,12 @@
 'use strict';
 
 const {Router} = require(`express`);
-
 const {HttpStatusCode} = require(`../../../constants`);
-const {articleValidator, articleExists, commentValidator} = require(`../../middlewares`);
+const {
+  articleValidator,
+  articleExists,
+  commentValidator
+} = require(`../../middlewares`);
 
 
 const articleRouter = (app, articleService, commentService) => {
@@ -14,8 +17,7 @@ const articleRouter = (app, articleService, commentService) => {
   route.get(`/`, async (req, res) => {
     const {count} = req.params;
     const articles = await articleService.findAll(count);
-    return res
-      .status(HttpStatusCode.OK)
+    return res.status(HttpStatusCode.OK)
       .json(articles);
   });
 
@@ -29,34 +31,28 @@ const articleRouter = (app, articleService, commentService) => {
         .send(`Not found with ${articleId}`);
     }
 
-    return res
-      .status(HttpStatusCode.OK)
+    return res.status(HttpStatusCode.OK)
       .json(article);
   });
 
   route.post(`/`, articleValidator, async (req, res) => {
     const article = await articleService.create(req.body);
 
-    return res
-      .status(HttpStatusCode.CREATED)
+    return res.status(HttpStatusCode.CREATED)
       .json(article);
   });
 
   route.put(`/:articleId`, articleValidator, async (req, res) => {
     const {articleId} = req.params;
-    const existArticle = await articleService.findOne(articleId);
-
-    if (!existArticle) {
-      return res
-        .status(HttpStatusCode.NOT_FOUND)
+    const updateArticle = await articleService.update(articleId, req.body);
+    if (!updateArticle) {
+      return res.status(HttpStatusCode.NOT_FOUND)
         .send(`Not found with ${articleId}`);
     }
 
-    const updateArticle = await articleService.update(articleId, req.body);
 
-    return res
-      .status(HttpStatusCode.OK)
-      .json(updateArticle);
+    return res.status(HttpStatusCode.OK)
+      .send(`Updated`);
   });
 
   route.delete(`/:articleId`, async (req, res) => {
@@ -64,23 +60,19 @@ const articleRouter = (app, articleService, commentService) => {
     const article = await articleService.drop(articleId);
 
     if (!article) {
-      return res
-        .status(HttpStatusCode.NOT_FOUND)
+      return res.status(HttpStatusCode.NOT_FOUND)
         .send(`Not found with ${articleId}`);
     }
 
-    return res
-      .status(HttpStatusCode.OK)
+    return res.status(HttpStatusCode.OK)
       .json(article);
-
   });
 
   route.get(`/:articleId/comments`, articleExists(articleService), async (req, res) => {
     const {articleId} = req.params;
     const comments = await commentService.findAll(articleId);
 
-    return res
-      .status(HttpStatusCode.OK)
+    return res.status(HttpStatusCode.OK)
       .json(comments);
   });
 
@@ -99,7 +91,7 @@ const articleRouter = (app, articleService, commentService) => {
   });
 
   route.post(`/:articleId/comments`, [articleExists(articleService), commentValidator], async (req, res) => {
-    const {articleId} = req.params;
+    const {articleId} = res.locals;
     const comment = await commentService.create(articleId, req.body);
 
     return res

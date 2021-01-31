@@ -2,10 +2,9 @@
 
 const faker = require(`faker`);
 const {sequelize} = require(`../lib/sequelize`);
+const {initDB} = require(`../lib/init-db`);
 const {getLogger} = require(`../lib/logger`);
 const {nanoid} = require(`nanoid`);
-const defineModels = require(`../models`);
-const Alias = require(`../models/alias`);
 
 const {
   getRandomInt,
@@ -15,6 +14,7 @@ const {
   },
   fileUtils: {
     readTextFileToArray,
+    writeFileJSON,
   },
 } = require(`../../utils`);
 
@@ -33,15 +33,9 @@ const {
 } = require(`../../constants`);
 
 
-const generateUserRoles = (userRoles) =>
-  userRoles.map((role) => ({name: role}));
-
-const generateCategories = (categories) =>
-  categories.map((category) => ({name: category}));
-
-const generateUsers = (roles) =>
+const generateUsers = () =>
   Array(MAX_USERS).fill({}).map((_item, index) => ({
-    userRoleId: index === 0 ? roles[0].id : roles[1].id,
+    userRoleId: index === 0 ? 1 : 2,
     firstname: `${faker.name.firstName()}`,
     lastname: `${faker.name.lastName()}`,
     email: `${faker.internet.email()}`,
@@ -54,14 +48,14 @@ const generateArticles = (count, title, sentences, images, comments, categories,
     title: getOneRandomElement(title),
     announce: getRandomElements(sentences, MIN_ANNOUNCE_STRING, MAX_ANNOUNCE_STRING).join(` `),
     fullText: getRandomElements(sentences).join(` `),
-    userId: getOneRandomElement(users).id,
-    categories: getRandomElements(categories).map((category) => category.id),
-    [Alias.IMAGES]: ({path: `/img/${getOneRandomElement(images)}`}),
-    [Alias.COMMENTS]: Array(getRandomInt(1, MAX_COMMENTS))
+    userId: getRandomInt(1, users.length),
+    categories: getRandomElements(categories),
+    images: ({path: `/img/${getOneRandomElement(images)}`}),
+    comments: Array(getRandomInt(1, MAX_COMMENTS))
       .fill({})
       .map(() => ({
         text: getRandomElements(comments).join(` `),
-        userId: getOneRandomElement(users).id,
+        userId: getRandomInt(1, users.length),
       }))
   }));
 
@@ -71,9 +65,6 @@ module.exports = {
     const logger = getLogger({name: `FILL-DB`});
 
     try {
-      const {Category, Article, UserRole, User} = defineModels(sequelize);
-      await sequelize.sync({force: true});
-
       const [count] = args;
       const countArticle = Number.parseInt(count, 10) || DEFAULT_ARTICLES_COUNT;
 
@@ -91,12 +82,8 @@ module.exports = {
         readTextFileToArray(DataFilePath.ITEM_IMG)
       ]);
 
-      const [roles, categories] = await Promise.all([
-        UserRole.bulkCreate(generateUserRoles(userRolesContent)),
-        Category.bulkCreate(generateCategories(categoriesContent))
-      ]);
 
-      const users = await User.bulkCreate(generateUsers(roles));
+      const users = generateUsers();
 
       const generatedArticles = generateArticles(
           countArticle,
@@ -104,19 +91,24 @@ module.exports = {
           sentencesContent,
           imagesContent,
           commentsContent,
-          categories,
+          categoriesContent,
           users
       );
 
-      await Promise.all(
-          generatedArticles
-            .map(async (article) => {
-              const createdArticle = await Article.create(article, {include: [Alias.IMAGES, Alias.COMMENTS]});
-              await createdArticle.addCategories(article.categories);
-            })
-      );
+
+      await writeFileJSON(`./mocks/roles.json`, userRolesContent);
+      await writeFileJSON(`./mocks/users.json`, users);
+      await writeFileJSON(`./mocks/categories.json`, categoriesContent);
+      await writeFileJSON(`./mocks/articles.json`, generatedArticles);
+
+      await initDB(sequelize, {data: {
+        roles: userRolesContent,
+        users,
+        categories: categoriesContent,
+        articles: generatedArticles,
+      }});
+
       logger.info(`База данныз заполнена данными`);
-      await sequelize.close();
     } catch (err) {
       logger.error(err);
       process.exit(ExitCode.ERROR);
