@@ -14,7 +14,6 @@ const {
   },
   fileUtils: {
     readTextFileToArray,
-    writeFileJSON,
   },
 } = require(`../../utils`);
 
@@ -94,12 +93,6 @@ module.exports = {
           categoriesContent,
           users
       );
-
-
-      await writeFileJSON(`./mocks/roles.json`, userRolesContent);
-      await writeFileJSON(`./mocks/users.json`, users);
-      await writeFileJSON(`./mocks/categories.json`, categoriesContent);
-      await writeFileJSON(`./mocks/articles.json`, generatedArticles);
 
       await initDB(sequelize, {data: {
         roles: userRolesContent,
