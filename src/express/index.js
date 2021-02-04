@@ -1,17 +1,18 @@
 'use strict';
-const path = require(`path`);
 const express = require(`express`);
 
 const {getLogger} = require(`../service/lib/logger`);
 
-const {
-  DEFAULT_PORT_FRONT,
-  PROJECT_DIR,
-  PUBLIC_DIR,
-  TEMPLATES_DIR
-} = require(`../../settings`);
+const {DEFAULT_PORT_FRONT} = require(`../../settings`);
 const {mainRouter} = require(`./routes/main-routes`);
-const {HttpStatusCode} = require(`../constants.js`);
+const {
+  HttpStatusCode,
+  FrontDir: {
+    PUBLIC_DIR,
+    TEMPLATES_DIR
+  }
+
+} = require(`../constants.js`);
 
 
 const port = process.env.FRONT_PORT || DEFAULT_PORT_FRONT;
@@ -20,8 +21,8 @@ const logger = getLogger({name: `EXPRESS`});
 const app = express();
 
 app.set(`view engine`, `pug`);
-app.set(`views`, path.resolve(PROJECT_DIR, TEMPLATES_DIR));
-app.use(express.static(path.resolve(PROJECT_DIR, PUBLIC_DIR)));
+app.set(`views`, TEMPLATES_DIR);
+app.use(express.static(PUBLIC_DIR));
 
 app.use(`/`, mainRouter);
 

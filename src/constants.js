@@ -5,7 +5,6 @@ const {PROJECT_DIR} = require(`../settings`);
 
 const USER_ARGV_INDEX = 2;
 const DEFAULT_COMMAND = `--help`;
-const API_PREFIX = `/api`;
 const MAX_ID_LENGTH = 6;
 
 const ExitCode = {
@@ -51,6 +50,17 @@ const GenerateFileRequirements = {
   MAX_ANNOUNCE_STRING: 2,
 };
 
+const API_PREFIX = `/api`;
+
+const EXPRESS_PATH = resolvePath(PROJECT_DIR, `src/express`);
+
+const FrontDir = {
+  PUBLIC_DIR: resolvePath(EXPRESS_PATH, `public`),
+  TEMPLATES_DIR: resolvePath(EXPRESS_PATH, `templates`),
+  UPLOAD_DIR: resolvePath(EXPRESS_PATH, `upload`),
+  UPLOAD_IMAGES_DIR: resolvePath(EXPRESS_PATH, `upload`, `img`),
+};
+
 
 module.exports = {
   USER_ARGV_INDEX,
@@ -61,5 +71,6 @@ module.exports = {
   HttpStatusCode,
   Env,
   DataFilePath,
-  GenerateFileRequirements
+  GenerateFileRequirements,
+  FrontDir
 };

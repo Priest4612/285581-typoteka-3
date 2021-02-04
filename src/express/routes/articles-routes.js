@@ -2,18 +2,14 @@
 
 const {Router} = require(`express`);
 const multer = require(`multer`);
-const path = require(`path`);
 const {nanoid} = require(`nanoid`);
-const {PROJECT_DIR, UPLOAD_DIR} = require(`../../../settings`);
+const {FrontDir: {UPLOAD_IMAGES_DIR}} = require(`../../constants`);
 const {formatDate, getTime} = require(`../../utils`).dateUtils;
 const {renderQueryString} = require(`../../utils`).queryUtils;
 
-const IMAGES_DIR = `img`;
-
-const uploadDirAbsolute = path.resolve(PROJECT_DIR, UPLOAD_DIR, IMAGES_DIR);
 
 const storage = multer.diskStorage({
-  destination: uploadDirAbsolute,
+  destination: UPLOAD_IMAGES_DIR,
   filename: (req, file, cb) => {
     const uniqeName = nanoid(10);
     const extension = file.originalname.split(`.`).pop();
