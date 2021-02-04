@@ -63,12 +63,30 @@ class ArticleService {
   }
 
   async findHot({limit}) {
-    const {count, rows} = await this._Article.findAndCountAll({
-      limit,
-      include: [Alias.COMMENTS],
-    });
+    const results = await this._Article.findAll({
+      attributes: [
+        `id`,
+        `announce`,
+        [
+          Sequelize.fn(
+              `COUNT`,
+              `*`
+          ),
+          `count`
+        ]
+      ],
+      group: [Sequelize.col(`Article.id`)],
+      order: [
+        [`count`, `DESC`],
+      ],
+      include: [{
+        model: this._Comment,
+        as: Alias.COMMENTS,
+        attributes: []
+      }],
+    }, limit);
 
-    return {count, articles: rows};
+    return results;
   }
 
   async findOne(id) {

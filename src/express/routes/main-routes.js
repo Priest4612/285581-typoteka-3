@@ -15,14 +15,14 @@ mainRouter.get(`/`, async (req, res) => {
   const [
     apiArticlesData,
     apiCategoriesData,
+    apiHotArticlesData,
   ] = await Promise.all([
     api.getArticles({count: true}),
-    api.getCategories({count: true})
+    api.getCategories({count: true}),
+    api.getHotArticles({limit: 4})
   ]);
 
-  console.log(apiArticlesData);
-
-  res.render(`main/main`, {apiArticlesData, apiCategoriesData});
+  res.render(`main/main`, {apiArticlesData, apiCategoriesData,apiHotArticlesData});
 });
 
 mainRouter.get(`/register`, (req, res) => res.render(`main/sign-up`));

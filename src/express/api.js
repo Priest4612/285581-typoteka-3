@@ -22,6 +22,10 @@ class API {
     return await this._load(`/articles`, {params: {count}});
   }
 
+  async getHotArticles(limit) {
+    return await this._load(`/articles/hot`, {params: {limit}});
+  }
+
   getArticle(id) {
     return this._load(`/articles/${id}`);
   }
