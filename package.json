@@ -33,6 +33,7 @@
     "nodemon": "2.0.4",
     "pino-pretty": "4.3.0",
     "pug-lint": "2.6.0",
+    "pug-lint-config-clock": "2.0.0",
     "sqlite3": "5.0.1",
     "supertest": "6.0.1"
   },

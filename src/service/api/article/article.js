@@ -15,10 +15,16 @@ const articleRouter = (app, articleService, commentService) => {
   app.use(`/articles`, route);
 
   route.get(`/`, async (req, res) => {
-    const {count} = req.params;
+    const {count} = req.query;
     const articles = await articleService.findAll(count);
     return res.status(HttpStatusCode.OK)
       .json(articles);
+  });
+
+  route.get(`/hot`, async (req, res) => {
+    const {limit} = req.query;
+    const results = await articleService.findHot({limit});
+    res.status(HttpStatusCode.OK).json(results);
   });
 
   route.get(`/:articleId`, async (req, res) => {

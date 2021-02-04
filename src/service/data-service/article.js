@@ -9,11 +9,13 @@ class ArticleService {
     this._Article = sequelize.models.Article;
     this._Comment = sequelize.models.Comment;
     this._User = sequelize.models.User;
+    this._Image = sequelize.models.Image;
+    this._Category = sequelize.models.Category;
   }
 
   async findAll(needCount) {
     const include = [Alias.IMAGES, Alias.CATEGORIES, Alias.COMMENTS];
-    let result = [];
+    let result;
     if (needCount) {
       result = await this._Article.findAll({
         attributes: [
@@ -29,7 +31,13 @@ class ArticleService {
             `count`
           ]
         ],
-        group: [Sequelize.col(`Article.id`)],
+        group: [
+          Sequelize.col(`Article.id`),
+          Sequelize.col(`images.id`),
+          Sequelize.col(`categories.id`),
+          Sequelize.col(`categories->AtricleToCategory.articleId`),
+          Sequelize.col(`categories->AtricleToCategory.categoryId`),
+        ],
         order: [
           [`createdAt`, `DESC`],
         ],
@@ -37,6 +45,14 @@ class ArticleService {
           model: this._Comment,
           as: Alias.COMMENTS,
           attributes: []
+        }, {
+          model: this._Image,
+          as: Alias.IMAGES,
+          attributes: [`path`]
+        }, {
+          model: this._Category,
+          as: Alias.CATEGORIES,
+          attributes: [`id`, `name`]
         }]
       });
       return await result.map((it) => it.get());
@@ -44,6 +60,15 @@ class ArticleService {
       result = await this._Article.findAll({include});
       return result.map((it) => it.get());
     }
+  }
+
+  async findHot({limit}) {
+    const {count, rows} = await this._Article.findAndCountAll({
+      limit,
+      include: [Alias.COMMENTS],
+    });
+
+    return {count, articles: rows};
   }
 
   async findOne(id) {

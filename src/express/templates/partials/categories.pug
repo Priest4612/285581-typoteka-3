@@ -1,0 +1,5 @@
+ul.themes
+  each apiCategory in apiCategoriesData
+    li.themes__item
+      a.themes__item-link(href=apiCategory.id) #{`${apiCategory.name}`}
+        sup #{`${apiCategory.count}`}

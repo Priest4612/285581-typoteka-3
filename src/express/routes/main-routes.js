@@ -12,8 +12,17 @@ const {getLogger} = require(`../../service/lib/logger`);
 const logger = getLogger({name: `SEARCH-ROUTER`});
 
 mainRouter.get(`/`, async (req, res) => {
-  const apiArticlesData = await api.getArticles();
-  res.render(`main/main`, {apiArticlesData});
+  const [
+    apiArticlesData,
+    apiCategoriesData,
+  ] = await Promise.all([
+    api.getArticles({count: true}),
+    api.getCategories({count: true})
+  ]);
+
+  console.log(apiArticlesData);
+
+  res.render(`main/main`, {apiArticlesData, apiCategoriesData});
 });
 
 mainRouter.get(`/register`, (req, res) => res.render(`main/sign-up`));
