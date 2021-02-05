@@ -15,16 +15,15 @@ const articleRouter = (app, articleService, commentService) => {
   app.use(`/articles`, route);
 
   route.get(`/`, async (req, res) => {
-    const {count} = req.query;
-    const articles = await articleService.findAll(count);
+    const {limit, offset, hot} = req.query;
+    let results;
+    if (limit || offset) {
+      results = await articleService.findPage({limit, offset, hot});
+    } else {
+      results = await articleService.findAll();
+    }
     return res.status(HttpStatusCode.OK)
-      .json(articles);
-  });
-
-  route.get(`/hot`, async (req, res) => {
-    const {limit} = req.query;
-    const results = await articleService.findHot({limit});
-    res.status(HttpStatusCode.OK).json(results);
+      .json(results);
   });
 
   route.get(`/:articleId`, async (req, res) => {
@@ -76,7 +75,7 @@ const articleRouter = (app, articleService, commentService) => {
 
   route.get(`/:articleId/comments`, articleExists(articleService), async (req, res) => {
     const {articleId} = req.params;
-    const comments = await commentService.findAll(articleId);
+    const comments = await commentService.findAllToArticle(articleId);
 
     return res.status(HttpStatusCode.OK)
       .json(comments);

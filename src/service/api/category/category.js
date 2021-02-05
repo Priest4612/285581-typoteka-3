@@ -9,9 +9,7 @@ const categoryRouter = (app, categoryService) => {
   app.use(`/categories`, route);
 
   route.get(`/`, async (req, res) => {
-    const {count} = req.query;
-
-    const categories = await categoryService.findAll(count);
+    const categories = await categoryService.findAll();
     return res.status(HttpStatusCode.OK)
       .json(categories);
   });

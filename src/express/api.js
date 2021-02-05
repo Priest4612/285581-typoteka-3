@@ -18,12 +18,8 @@ class API {
     return response.data;
   }
 
-  async getArticles(count) {
-    return await this._load(`/articles`, {params: {count}});
-  }
-
-  async getHotArticles(limit) {
-    return await this._load(`/articles/hot`, {params: {limit}});
+  async getArticles({limit, offset, hot} = {}) {
+    return await this._load(`/articles`, {params: {limit, offset, hot}});
   }
 
   getArticle(id) {
@@ -43,6 +39,10 @@ class API {
       method: `POST`,
       data
     });
+  }
+
+  async getComments({limit, offset, last} = {}) {
+    return await this._load(`/comments`, {params: {limit, offset, last}});
   }
 
 }

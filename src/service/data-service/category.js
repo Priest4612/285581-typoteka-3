@@ -9,39 +9,30 @@ class CategoryService {
     this._AtricleToCategory = sequelize.models.AtricleToCategory;
   }
 
-  async findAll(needCount) {
-    if (needCount) {
-      const result = await this._Category.findAll({
-        attributes: [
-          `id`,
-          `name`,
-          [
-            Sequelize.fn(
-                `COUNT`,
-                `*`
-            ),
-            `count`
-          ]
-        ],
-        group: [Sequelize.col(`Category.id`)],
-        order: [
-          [`id`, `ASC`],
-        ],
-        include: [{
-          model: this._AtricleToCategory,
-          as: Alias.ARTICLE_TO_CATEGORIES,
-          attributes: []
-        }]
-      });
-      return await result.map((it) => it.get());
-    } else {
-      return await this._Category.findAll({
-        order: [
-          [`id`, `ASC`],
-        ],
-        raw: true
-      });
-    }
+  async findAll() {
+    const result = await this._Category.findAll({
+      attributes: [
+        `id`,
+        `name`,
+        [
+          Sequelize.fn(
+              `COUNT`,
+              `*`
+          ),
+          `count`
+        ]
+      ],
+      group: [Sequelize.col(`Category.id`)],
+      order: [
+        [`id`, `ASC`],
+      ],
+      include: [{
+        model: this._AtricleToCategory,
+        as: Alias.ARTICLE_TO_CATEGORIES,
+        attributes: []
+      }]
+    });
+    return await result.map((it) => it.get());
   }
 }
 

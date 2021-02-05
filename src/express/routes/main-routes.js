@@ -16,13 +16,23 @@ mainRouter.get(`/`, async (req, res) => {
     apiArticlesData,
     apiCategoriesData,
     apiHotArticlesData,
+    apiLastComments
   ] = await Promise.all([
-    api.getArticles({count: true}),
-    api.getCategories({count: true}),
-    api.getHotArticles({limit: 4})
+    api.getArticles(),
+    api.getCategories(),
+    api.getArticles({
+      limit: 4,
+      offset: 4,
+      hot: true
+    }),
+    api.getComments({
+      limit: 4,
+      offset: 4,
+      last: true
+    })
   ]);
 
-  res.render(`main/main`, {apiArticlesData, apiCategoriesData,apiHotArticlesData});
+  res.render(`main/main`, {apiArticlesData, apiCategoriesData, apiHotArticlesData, apiLastComments});
 });
 
 mainRouter.get(`/register`, (req, res) => res.render(`main/sign-up`));

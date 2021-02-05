@@ -13,80 +13,55 @@ class ArticleService {
     this._Category = sequelize.models.Category;
   }
 
-  async findAll(needCount) {
+  async findAll() {
     const include = [Alias.IMAGES, Alias.CATEGORIES, Alias.COMMENTS];
-    let result;
-    if (needCount) {
-      result = await this._Article.findAll({
-        attributes: [
-          `id`,
-          `title`,
-          `announce`,
-          `createdAt`,
-          [
-            Sequelize.fn(
-                `COUNT`,
-                `*`
-            ),
-            `count`
-          ]
-        ],
-        group: [
-          Sequelize.col(`Article.id`),
-          Sequelize.col(`images.id`),
-          Sequelize.col(`categories.id`),
-          Sequelize.col(`categories->AtricleToCategory.articleId`),
-          Sequelize.col(`categories->AtricleToCategory.categoryId`),
-        ],
+    const result = await this._Article.findAll({include});
+    return await result.map((it) => it.get());
+  }
+
+  async findPage({limit, offset, hot}) {
+    if (hot) {
+      const results = await this._Article.findAll(
+          {
+            attributes: [
+              `id`,
+              `announce`,
+              [
+                Sequelize.fn(
+                    `COUNT`,
+                    `*`
+                ),
+                `count`
+              ]
+            ],
+            group: [Sequelize.col(`Article.id`)],
+            order: [
+              [`count`, `DESC`],
+            ],
+            include: [{
+              model: this._Comment,
+              as: Alias.COMMENTS,
+              attributes: []
+            }],
+          },
+          limit,
+          offset,
+      );
+
+      return results;
+    } else {
+      const include = [Alias.IMAGES, Alias.CATEGORIES, Alias.COMMENTS];
+      const {count, rows} = await this._Article.findAndCountAll({
+        limit,
+        offset,
+        include,
         order: [
           [`createdAt`, `DESC`],
         ],
-        include: [{
-          model: this._Comment,
-          as: Alias.COMMENTS,
-          attributes: []
-        }, {
-          model: this._Image,
-          as: Alias.IMAGES,
-          attributes: [`path`]
-        }, {
-          model: this._Category,
-          as: Alias.CATEGORIES,
-          attributes: [`id`, `name`]
-        }]
+        distinct: true,
       });
-      return await result.map((it) => it.get());
-    } else {
-      result = await this._Article.findAll({include});
-      return result.map((it) => it.get());
+      return {count, articles: rows};
     }
-  }
-
-  async findHot({limit}) {
-    const results = await this._Article.findAll({
-      attributes: [
-        `id`,
-        `announce`,
-        [
-          Sequelize.fn(
-              `COUNT`,
-              `*`
-          ),
-          `count`
-        ]
-      ],
-      group: [Sequelize.col(`Article.id`)],
-      order: [
-        [`count`, `DESC`],
-      ],
-      include: [{
-        model: this._Comment,
-        as: Alias.COMMENTS,
-        attributes: []
-      }],
-    }, limit);
-
-    return results;
   }
 
   async findOne(id) {
