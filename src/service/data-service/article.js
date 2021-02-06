@@ -2,6 +2,7 @@
 
 const Alias = require(`../models/alias`);
 const Sequelize = require(`sequelize`);
+const {Op} = require(`sequelize`);
 
 
 class ArticleService {
@@ -21,7 +22,7 @@ class ArticleService {
 
   async findPage({limit, offset, hot}) {
     if (hot) {
-      const results = await this._Article.findAll(
+      const result = await this._Article.findAll(
           {
             attributes: [
               `id`,
@@ -48,7 +49,7 @@ class ArticleService {
           offset,
       );
 
-      return results;
+      return result;
     } else {
       const include = [Alias.IMAGES, Alias.CATEGORIES, Alias.COMMENTS];
       const {count, rows} = await this._Article.findAndCountAll({
@@ -72,16 +73,42 @@ class ArticleService {
       as: Alias.COMMENTS,
       include: {
         model: this._User,
-        as: Alias.USERS,
-        attributes: [
-          `firstname`,
-          `lastname`
-        ]
+        as: Alias.USERS
       }
-
     });
 
     return await this._Article.findByPk(id, {include});
+  }
+
+  async findByCategoryAll(id) {
+    const include = [Alias.IMAGES, Alias.CATEGORIES, Alias.COMMENTS];
+
+    const articlesByCategory = await this._Article.findAll({
+      attributes: [
+        `id`
+      ],
+      include: [{
+        attributes: [],
+        model: this._Category,
+        as: Alias.CATEGORIES,
+        where: {
+          id
+        }
+      }]
+    });
+
+    const articlesId = (articlesByCategory.map((it) => it.get())).map((it) => it.id);
+
+    const result = await this._Article.findAll({
+      include,
+      where: {
+        id: {
+          [Op.in]: articlesId
+        }
+      }
+    });
+
+    return await result.map((it) => it.get());
   }
 
   async create(articleData) {

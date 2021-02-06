@@ -16,14 +16,28 @@ const articleRouter = (app, articleService, commentService) => {
 
   route.get(`/`, async (req, res) => {
     const {limit, offset, hot} = req.query;
-    let results;
+    let result;
     if (limit || offset) {
-      results = await articleService.findPage({limit, offset, hot});
+      result = await articleService.findPage({limit, offset, hot});
     } else {
-      results = await articleService.findAll();
+      result = await articleService.findAll();
     }
     return res.status(HttpStatusCode.OK)
-      .json(results);
+      .json(result);
+  });
+
+  route.get(`/category/:id`, async (req, res) => {
+    const {id} = req.params;
+    const {limit, offset} = req.query;
+
+    let result;
+    if (limit || offset) {
+      result = await articleService.findByCategoryPage({id, limit, offset});
+    } else {
+      result = await articleService.findByCategoryAll(id);
+    }
+    return res.status(HttpStatusCode.OK)
+      .json(result);
   });
 
   route.get(`/:articleId`, async (req, res) => {
@@ -48,7 +62,7 @@ const articleRouter = (app, articleService, commentService) => {
   });
 
   route.put(`/:articleId`, articleValidator, async (req, res) => {
-    const {articleId} = req.params;
+    const {articleId} = req.query;
     const updateArticle = await articleService.update(articleId, req.body);
     if (!updateArticle) {
       return res.status(HttpStatusCode.NOT_FOUND)

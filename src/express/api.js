@@ -22,8 +22,12 @@ class API {
     return await this._load(`/articles`, {params: {limit, offset, hot}});
   }
 
-  getArticle(id) {
-    return this._load(`/articles/${id}`);
+  async getArticle(id) {
+    return await this._load(`/articles/${id}`);
+  }
+
+  async getArticlesByCategory(id) {
+    return await this._load(`/articles/category/${id}`);
   }
 
   async getCategories(count) {
