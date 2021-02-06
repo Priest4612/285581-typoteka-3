@@ -35,43 +35,42 @@ block content
             | Самое обсуждаемое
             span.hot__icon.hot__icon--fire
           ul.hot__list
-            each apiHotArticle in apiHotArticlesData
+            each pugHotArticle in pugHotArticles
               li.hot__list-item
-                a.hot__list-link(href=apiHotArticle.id) #{apiHotArticle.announce}
-                  sup.hot__link-sup #{apiHotArticle.count}
+                a.hot__list-link(href=pugHotArticle.id) #{pugHotArticle.announce}
+                  sup.hot__link-sup #{pugHotArticle.count}
 
         section.main-page__last.last
           h2.last__name
             | Последние комментарии
             span.last__icon.last__icon--cloud
           ul.last__list
-            each apiComment in apiLastComments
+            each pugComment in pugLastComments
               li.last__list-item
-                img.last__list-image(src=apiComment.users.avatar, width='20', height='20', alt='Аватар пользователя')
-                b.last__list-name #{`${apiComment.users.firstname} ${apiComment.users.lastname}`}
-                a.last__list-link(href=apiComment.id) #{apiComment.text}
-
+                img.last__list-image(src=pugComment.users.avatar, width='20', height='20', alt='Аватар пользователя')
+                b.last__list-name #{`${pugComment.users.firstname} ${pugComment.users.lastname}`}
+                a.last__list-link(href=pugComment.id) #{pugComment.text}
 
       section.main-page__list.preview
         h2.visually-hidden Список превью статей
 
         ul.preview__list
-          each apiArticle in apiArticlesData
+          each pugArticle in pugArticles
             li.preview__item
               ul.preview__breadcrumbs
-                each category in apiArticle.categories
+                each category in pugArticle.categories
                   li.preview__breadcrumbs-item
                     a.preview__breadcrumbs-link(href=category.id) #{category.name}
               .preview__background
-                img.preview__background-image(src=apiArticle.images[0].path, width='460', height='240', alt='')
-              time.preview__time(datetime=apiArticle.createdAt) #{`${formatDate(apiArticle.createdAt)}`}
+                img.preview__background-image(src=pugArticle.images[0].path, width='460', height='240', alt='')
+              time.preview__time(datetime=pugArticle.createdAt) #{`${formatDate(pugArticle.createdAt)}`}
               h3.preview__name
-                a.preview__name-link(href='#') #{apiArticle.title}
-              p.preview__text #{apiArticle.announce}
+                a.preview__name-link(href='#') #{pugArticle.title}
+              p.preview__text #{pugArticle.announce}
               a.preview__comment(href='#')
                 | Комментарии
                 span.preview__cloud
-                b.preview__comment-count #{apiArticle.comments.length}
+                b.preview__comment-count #{pugArticle.comments.length}
 
       .preview__toggle-wrapper
         ul.preview__pagination.pagination

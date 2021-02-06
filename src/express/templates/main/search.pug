@@ -1,19 +1,42 @@
-extends ../layouts/admin-layout
+extends ../layouts/layout.pug
 
 block content
-  main
-    section.search-page
-      .search-page__wrapper
-        h1 Поиск
-        div(class={"search": true, "search-page__form": true, "search-page__wrapper--empty": results.length === 0 && search !== undefined})
-          form(action="/search", autocomplete="off", method='get')
-            label
-              input(type='text', placeholder='Что ищем?', name="search" value=search || '')
-            button.search__button.button.button--transparent(type='submit') Найти
-          if results.length > 0
-            each result in results
-              .search__result
-                time.search__date(datetime=result.createdDate) #{result.createdDate}
-                a.search__link #{result.title}
-        if results.length === 0 && search !== undefined
-          p.search-page__empty Ничего не нашлось
+
+  -
+    const changeNumberFormat = (number) => number < 10 ? `0${number}` : `${number}`;
+
+    const formatDate = (dateString) => {
+      const date = new Date(dateString);
+
+      const year = date.getFullYear();
+      const month = changeNumberFormat(date.getMonth() + 1);
+      const day = changeNumberFormat(date.getDate());
+      const hours = changeNumberFormat(date.getHours());
+      const minutes = changeNumberFormat(date.getMinutes());
+
+      return `${year}.${month}.${day}, ${hours}:${minutes}`;
+    };
+
+  .wrapper-color
+    include ../partials/header-admin.pug
+
+    main
+      section.search-page
+        div(class={"search-page__wrapper": true, "search-page__wrapper--empty": !pugResults.length && !search})
+          h1 Поиск
+          .search.search-page__form
+            form(action='/search', method='get', autocomplete='off')
+              label
+                input(type='text', name='search', placeholder='Что ищем?', value=search || '')
+              button.search__button.button.button--transparent(type='submit') Найти
+
+            if pugResults && pugResults.length
+              each result in pugResults
+                .search__result
+                  time.search__date(datetime=result.createdAt) #{formatDate(result.createdAt)}
+                  a.search__link #{result.title}
+
+            else if pugResults && !pugResults.length
+              p.search-page__empty Ничего не нашлось
+
+    include ../partials/footer.pug

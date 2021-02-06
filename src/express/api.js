@@ -30,8 +30,10 @@ class API {
     return await this._load(`/categories`, {params: {count}});
   }
 
-  search(query) {
-    return this._load(`/search`, {params: {query}});
+  async search(query) {
+    const result = await this._load(`/search`, {params: {query}});
+    console.log(result);
+    return result;
   }
 
   async createArticle(data) {

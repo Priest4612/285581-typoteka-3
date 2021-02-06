@@ -1,5 +1,5 @@
 ul.themes
-  each apiCategory in apiCategoriesData
+  each pugCategory in pugCategories
     li.themes__item
-      a.themes__item-link(href=apiCategory.id) #{`${apiCategory.name}`}
-        sup #{`${apiCategory.count}`}
+      a.themes__item-link(href=pugCategory.id) #{`${pugCategory.name}`}
+        sup #{`${pugCategory.count}`}
