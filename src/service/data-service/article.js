@@ -72,7 +72,7 @@ class ArticleService {
 
     const sql = `
     SELECT
-      "Article"."id", "Article"."title", "Article"."announce", "Article"."createdAt",COUNT("comments".*) AS "count",
+      "Article"."id", "Article"."title", "Article"."announce", "Article"."createdAt", COUNT("comments".*) AS "count",
       "images"."id" AS "images.id", "images"."path" AS "images.path", "images"."articleId" AS "images.articleId",
       "categories"."id" AS "categories.id", "categories"."name" AS "categories.name",
       "categories->AtricleToCategory"."articleId" AS "categories.AtricleToCategory.articleId",
@@ -106,11 +106,8 @@ class ArticleService {
     const replacements = [id, limit, offset];
 
     const records = await this._sequelize.query(sql, {
-      model: this._Article,
-      mapToModel: true,
       type,
       replacements,
-      raw: true,
       nest: true
     });
 
