@@ -1,7 +1,6 @@
 'use strict';
 
 const Alias = require(`../models/alias`);
-const Sequelize = require(`sequelize`);
 const {Op} = require(`sequelize`);
 
 
@@ -27,7 +26,7 @@ class ArticleService {
 
       const sql = `
         SELECT "Article"."id", "Article"."announce", COUNT("comments"."articleId") AS "count"
-        FROM "articles" AS "Article"
+        FROM "Article" AS "Article"
           LEFT OUTER JOIN "comments" AS "comments" ON "Article"."id" = "comments"."articleId"
         GROUP BY "Article"."id" ORDER BY "Article"."count" DESC
         LIMIT ?
@@ -70,7 +69,55 @@ class ArticleService {
   }
 
   async findByCategoryAll({id, limit, offset}) {
-    const include = [Alias.IMAGES, Alias.CATEGORIES, Alias.COMMENTS];
+
+    const sql = `
+    SELECT
+      "Article"."id", "Article"."title", "Article"."announce", "Article"."createdAt",COUNT("comments".*) AS "count",
+      "images"."id" AS "images.id", "images"."path" AS "images.path", "images"."articleId" AS "images.articleId",
+      "categories"."id" AS "categories.id", "categories"."name" AS "categories.name",
+      "categories->AtricleToCategory"."articleId" AS "categories.AtricleToCategory.articleId",
+      "categories->AtricleToCategory"."categoryId" AS "categories.AtricleToCategory.categoryId"
+    FROM "articles" AS "Article"
+      LEFT JOIN "images" ON "Article"."id" = "images"."articleId"
+      LEFT JOIN ("articleToCategories" AS "categories->AtricleToCategory"
+        INNER JOIN "categories" AS "categories"
+          ON "categories"."id" = "categories->AtricleToCategory"."categoryId")
+      ON "Article"."id" = "categories->AtricleToCategory"."articleId"
+      LEFT JOIN "comments" ON "Article"."id" = "comments"."articleId"
+    WHERE "Article"."id" IN (
+      SELECT "Article"."id"
+      FROM "articles" AS "Article"
+        INNER JOIN "articleToCategories" ON "Article"."id" = "articleToCategories"."articleId"
+        INNER JOIN "categories" ON "articleToCategories"."categoryId" = "categories"."id"
+      WHERE "categories"."id" = ?
+      LIMIT ?
+      OFFSET ?
+    )
+    GROUP BY
+      "Article"."id",
+      "images"."id",
+      "categories"."id",
+      "categories->AtricleToCategory"."articleId",
+      "categories->AtricleToCategory"."categoryId"
+    ORDER BY "Article"."createdAt" DESC
+    `;
+
+    const type = this._sequelize.QueryTypes.SELECT;
+    const replacements = [id, limit, offset];
+
+    const records = await this._sequelize.query(sql, {
+      model: this._Article,
+      mapToModel: true,
+      type,
+      replacements,
+      raw: true,
+      nest: true
+    });
+
+    console.log(JSON.stringify(records, null, 2));
+    return records;
+
+/*     const include = [Alias.IMAGES, Alias.CATEGORIES, Alias.COMMENTS];
 
     const articlesByCategory = await this._Article.findAll({
       attributes: [
@@ -99,7 +146,7 @@ class ArticleService {
       offset,
     });
 
-    return await result.map((it) => it.get());
+    return await result.map((it) => it.get()); */
   }
 
   async create(articleData) {
