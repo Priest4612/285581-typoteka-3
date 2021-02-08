@@ -17,6 +17,7 @@ class ArticleService {
   async findAll() {
     const include = [Alias.IMAGES, Alias.CATEGORIES, Alias.COMMENTS];
     const result = await this._Article.findAll({include});
+    console.log(JSON.stringify(result, null, 2));
     return await result.map((it) => it.get());
   }
 
@@ -72,11 +73,12 @@ class ArticleService {
 
     const sql = `
     SELECT
-      "Article"."id", "Article"."title", "Article"."announce", "Article"."createdAt", COUNT("comments".*) AS "count",
+      "Article"."id", "Article"."title", "Article"."announce", "Article"."createdAt",
       "images"."id" AS "images.id", "images"."path" AS "images.path", "images"."articleId" AS "images.articleId",
       "categories"."id" AS "categories.id", "categories"."name" AS "categories.name",
       "categories->AtricleToCategory"."articleId" AS "categories.AtricleToCategory.articleId",
-      "categories->AtricleToCategory"."categoryId" AS "categories.AtricleToCategory.categoryId"
+      "categories->AtricleToCategory"."categoryId" AS "categories.AtricleToCategory.categoryId",
+      COUNT("comments"."articleId") AS "count"
     FROM "articles" AS "Article"
       LEFT JOIN "images" ON "Article"."id" = "images"."articleId"
       LEFT JOIN ("articleToCategories" AS "categories->AtricleToCategory"
@@ -106,9 +108,12 @@ class ArticleService {
     const replacements = [id, limit, offset];
 
     const records = await this._sequelize.query(sql, {
-      type,
+      model: this._Article,
+      mapToModel: true,
+      raw: true,
+      nest: true,
       replacements,
-      nest: true
+      type,
     });
 
     console.log(JSON.stringify(records, null, 2));
