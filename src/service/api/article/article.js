@@ -32,7 +32,7 @@ const articleRouter = (app, articleService, commentService) => {
 
     let result;
     if (limit || offset) {
-      result = await articleService.findByCategoryPage({id, limit, offset});
+      result = await articleService.findByCategoryAll({id, limit, offset});
     } else {
       result = await articleService.findByCategoryAll(id);
     }

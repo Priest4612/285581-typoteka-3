@@ -7,6 +7,7 @@ const {Op} = require(`sequelize`);
 
 class ArticleService {
   constructor(sequelize) {
+    this._sequelize = sequelize;
     this._Article = sequelize.models.Article;
     this._Comment = sequelize.models.Comment;
     this._User = sequelize.models.User;
@@ -21,35 +22,23 @@ class ArticleService {
   }
 
   async findPage({limit, offset, hot}) {
-    if (hot) {
-      const result = await this._Article.findAll(
-          {
-            attributes: [
-              `id`,
-              `announce`,
-              [
-                Sequelize.fn(
-                    `COUNT`,
-                    `*`
-                ),
-                `count`
-              ]
-            ],
-            group: [Sequelize.col(`Article.id`)],
-            order: [
-              [`count`, `DESC`],
-            ],
-            include: [{
-              model: this._Comment,
-              as: Alias.COMMENTS,
-              attributes: []
-            }],
-          },
-          limit,
-          offset,
-      );
 
-      return result;
+    if (hot) {
+
+      const sql = `
+        SELECT "Article"."id", "Article"."announce", COUNT("comments"."articleId") AS "count"
+        FROM "articles" AS "Article"
+          LEFT OUTER JOIN "comments" AS "comments" ON "Article"."id" = "comments"."articleId"
+        GROUP BY "Article"."id" ORDER BY "Article"."count" DESC
+        LIMIT ?
+        OFFSET ?;
+      `;
+
+      const type = this._sequelize.QueryTypes.SELECT;
+      const replacements = [limit, offset];
+
+      return await this._sequelize.query(sql, {type, replacements});
+
     } else {
       const include = [Alias.IMAGES, Alias.CATEGORIES, Alias.COMMENTS];
       const {count, rows} = await this._Article.findAndCountAll({
@@ -80,7 +69,7 @@ class ArticleService {
     return await this._Article.findByPk(id, {include});
   }
 
-  async findByCategoryAll(id) {
+  async findByCategoryAll({id, limit, offset}) {
     const include = [Alias.IMAGES, Alias.CATEGORIES, Alias.COMMENTS];
 
     const articlesByCategory = await this._Article.findAll({
@@ -105,7 +94,9 @@ class ArticleService {
         id: {
           [Op.in]: articlesId
         }
-      }
+      },
+      limit,
+      offset,
     });
 
     return await result.map((it) => it.get());

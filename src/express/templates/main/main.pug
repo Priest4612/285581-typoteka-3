@@ -1,7 +1,7 @@
 extends ../layouts/layout.pug
 
 block content
-  include ../partials/format-date.pug
+  include ../partials/utils.pug
 
   .wrapper
     include ../partials/header-main.pug
@@ -23,7 +23,7 @@ block content
           ul.hot__list
             each pugHotArticle in pugHotArticles
               li.hot__list-item
-                a.hot__list-link(href=pugHotArticle.id) #{pugHotArticle.announce}
+                a.hot__list-link(href=`/articles/${pugHotArticle.id}`) #{lengthLimit(pugHotArticle.announce)}
                   sup.hot__link-sup #{pugHotArticle.count}
 
         section.main-page__last.last
@@ -35,7 +35,7 @@ block content
               li.last__list-item
                 img.last__list-image(src=pugComment.users.avatar, width='20', height='20', alt='Аватар пользователя')
                 b.last__list-name #{`${pugComment.users.firstname} ${pugComment.users.lastname}`}
-                a.last__list-link(href=pugComment.id) #{pugComment.text}
+                a.last__list-link(href=`/articles/${pugComment.articleId}`) #{lengthLimit(pugComment.text)}
 
       section.main-page__list.preview
         h2.visually-hidden Список превью статей
@@ -51,7 +51,7 @@ block content
                 img.preview__background-image(src=pugArticle.images[0].path, width='460', height='240', alt='')
               time.preview__time(datetime=pugArticle.createdAt) #{`${formatDate(pugArticle.createdAt)}`}
               h3.preview__name
-                a.preview__name-link(href='#') #{pugArticle.title}
+                a.preview__name-link(href=`/articles/${pugArticle.id}`) #{pugArticle.title}
               p.preview__text #{pugArticle.announce}
               a.preview__comment(href='#')
                 | Комментарии

@@ -12,3 +12,11 @@
 
     return `${year}.${month}.${day}, ${hours}:${minutes}`;
   };
+
+  const lengthLimit = (text, maxLength = 100) => {
+      let ret = text;
+      if (ret.length > maxLength) {
+          ret = ret.substr(0,maxLength) + "...";
+      }
+      return ret;
+  };
