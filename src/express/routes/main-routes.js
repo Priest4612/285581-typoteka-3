@@ -21,8 +21,8 @@ mainRouter.get(`/`, async (req, res, next) => {
     ] = await Promise.all([
       api.getArticles(),
       api.getCategories(),
-      api.getArticles({limit: 4, offset: 1, hot: true}),
-      api.getComments({limit: 4, offset: 1, last: true})
+      api.getArticles({limit: 4, offset: 0, hot: true}),
+      api.getComments({limit: 4, offset: 0, last: true})
     ]);
 
     res.render(`main/main`, {pugArticles, pugCategories, pugHotArticles, pugLastComments});

@@ -22,6 +22,7 @@ const articleRouter = (app, articleService, commentService) => {
     } else {
       result = await articleService.findAll();
     }
+
     return res.status(HttpStatusCode.OK)
       .json(result);
   });

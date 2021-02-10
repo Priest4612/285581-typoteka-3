@@ -4,7 +4,6 @@ const Alias = require(`../models/alias`);
 
 class CommentService {
   constructor(sequelize) {
-    this._Article = sequelize.models.Article;
     this._Comment = sequelize.models.Comment;
   }
 
@@ -25,17 +24,15 @@ class CommentService {
         order: [
           [`createdAt`, `DESC`],
         ],
-        distinct: true,
       });
     } else {
       results = await this._Comment.findAll({
         limit,
         offset,
-        include: [Alias.USERS, Alias.ARTICLES],
+        include: [Alias.USERS],
         order: [
           [`createdAt`, `DESC`],
         ],
-        distinct: true,
       });
     }
     return await results.map((it) => it.get());
