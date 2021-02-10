@@ -34,7 +34,7 @@ block content
               each result in pugResults
                 .search__result
                   time.search__date(datetime=result.createdAt) #{formatDate(result.createdAt)}
-                  a.search__link #{result.title}
+                  a.search__link(href=`/articles/${result.id}`) #{result.title}
 
             else if pugResults && !pugResults.length
               p.search-page__empty Ничего не нашлось

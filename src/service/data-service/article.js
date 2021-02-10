@@ -17,7 +17,6 @@ class ArticleService {
   async findAll() {
     const include = [Alias.IMAGES, Alias.CATEGORIES, Alias.COMMENTS];
     const result = await this._Article.findAll({include});
-    console.log(JSON.stringify(result, null, 2));
     return await result.map((it) => it.get());
   }
 

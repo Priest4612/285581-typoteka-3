@@ -36,7 +36,6 @@ class API {
 
   async search(query) {
     const result = await this._load(`/search`, {params: {query}});
-    console.log(result);
     return result;
   }
 
