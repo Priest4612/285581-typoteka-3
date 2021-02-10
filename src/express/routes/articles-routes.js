@@ -36,6 +36,7 @@ articlesRouter.get(`/category/:id`, async (req, res) => {
   ]);
 
   const activeCategory = pugCategories.find((category) => category.id === Number.parseInt(id, 10));
+
   res.render(`articles/articles-by-category`, {activeCategory, pugArticles, pugCategories});
 });
 

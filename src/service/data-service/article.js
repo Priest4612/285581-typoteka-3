@@ -67,7 +67,39 @@ class ArticleService {
     return await this._Article.findByPk(id, {include});
   }
 
-  async findByCategoryAll({id, limit, offset}) {
+  async findByCategoryAll({id}) {
+    const include = [Alias.CATEGORIES, Alias.IMAGES, Alias.COMMENTS];
+
+    const findArticlesIdByCategoryId = async (categoryId) => {
+      const rows = await this._Article.findAll({
+        attributes: [`id`],
+        include: [{
+          attributes: [],
+          model: this._Category,
+          as: Alias.CATEGORIES,
+          where: {
+            id: categoryId
+          }
+        }],
+        raw: true
+      });
+
+      return rows.map((item) => item.id);
+    };
+
+    const records = await this._Article.findAll({
+      include,
+      where: {
+        id: {
+          [Op.in]: await findArticlesIdByCategoryId(id)
+        }
+      }
+    });
+
+    return records.map((it) => it.get());
+  }
+
+  async findByCategoryPage({id, limit, offset}) {
     const include = [Alias.CATEGORIES, Alias.IMAGES, Alias.COMMENTS];
 
     const findArticlesIdByCategoryId = async (categoryId) => {
@@ -100,15 +132,12 @@ class ArticleService {
           [Op.in]: articlesIdByCategoryId
         }
       },
-      limit,
-      offset,
     });
 
     const articlesIdByCategory = records.map((it) => it.get());
 
     return {count, articlesIdByCategory};
   }
-
 
   async create(articleData) {
     const article = await this._Article.create(articleData, {include: [Alias.IMAGES]});
