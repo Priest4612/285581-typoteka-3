@@ -16,9 +16,9 @@ block content
                 img.publication__list-image(src=`${pugComment.users.avatar}`, width='20', height='20', alt='Аватар пользователя')
                 b.publication__list-name #{`${pugComment.users.firstname} ${pugComment.users.lastname}`}
                 time.publication__item-time(datetime=`${pugComment.createdAt}`) #{`${formatDate(pugComment.createdAt)}`}
-              a.publication__item-text(href=`/articles/${pugComment.articleId}`) #{`${pugComment.text}`}
+              a.publication__item-text(href=`/articles/${pugComment.articles.id}`) #{`${pugComment.text}`}
               p.publication__text-strong #{`${pugComment.articles.title}`}
               button.publication__button.button.button--close-item(type='button')
                 span.visually-hidden Закрыть строку списка
 
-  include ../partials/footer.pug
+    include ../partials/footer.pug

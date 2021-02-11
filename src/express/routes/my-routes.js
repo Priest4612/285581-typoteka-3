@@ -31,9 +31,6 @@ myRouter.get(`/comments`, async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-
-  const apiArticlesData = await api.getArticles();
-  res.render(`my/comments`, {apiArticlesData: apiArticlesData.slice(0, 3)});
 });
 
 module.exports = {
