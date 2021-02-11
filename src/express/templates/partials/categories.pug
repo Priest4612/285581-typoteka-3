@@ -1,5 +1,5 @@
 ul.themes
   each pugCategory in pugCategories
     li.themes__item
-      a(class={"themes__item-link": true, "themes__item-link--active": activeCategory && activeCategory.id === pugCategory.id}, href=`articles/category/${pugCategory.id}`) #{`${pugCategory.name}`}
+      a(class={"themes__item-link": true, "themes__item-link--active": activeCategory && activeCategory.id === pugCategory.id}, href=`/articles/category/${pugCategory.id}`) #{`${pugCategory.name}`}
         sup #{`${pugCategory.count}`}

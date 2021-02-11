@@ -1,13 +1,20 @@
-extends ../layouts/admin-layout
+extends ../layouts/layout.pug
 
 block content
-  main.main-page.main-page--padding
-    section.main-page__notes.notes
-      h1.notes__title Мои записи
-      ul.notes__list
-        each apiArticle in apiArticlesData
-          li.notes__list-item
-            time.notes__item-time(datetime=apiArticle.createDate) #{apiArticle.createDate}
-            a.notes__item-text(href='#') #{apiArticle.title}
-            button.notes__button.button.button--close-item(type='button')
-              span.visually-hidden Закрыть строку списка
+  include ../partials/utils.pug
+
+  .wrapper.wrapper--nobackground
+    include ../partials/header-admin.pug
+
+    main.main-page.main-page--padding
+      section.main-page__notes.notes
+        h1.notes__title Мои записи
+        ul.notes__list
+          each pugArticle in pugArticles
+            li.notes__list-item
+              time.notes__item-time(datetime=`${pugArticle.createdAt}`) #{`${formatDate(pugArticle.createdAt)}`}
+              a.notes__item-text(href=`/articles/${pugArticle.id}`) #{`${pugArticle.title}`}
+              button.notes__button.button.button--close-item(type='button')
+                span.visually-hidden Закрыть строку списка
+
+    include ../partials/footer.pug

@@ -25,19 +25,23 @@ const api = require(`../api`).getAPI();
 const {getLogger} = require(`../../service/lib/logger`);
 const logger = getLogger({name: `ARTICLES-ROUTER`});
 
-articlesRouter.get(`/category/:id`, async (req, res) => {
-  const {id} = req.params;
-  const [
-    pugArticles,
-    pugCategories,
-  ] = await Promise.all([
-    api.getArticlesByCategory(id),
-    api.getCategories()
-  ]);
+articlesRouter.get(`/category/:id`, async (req, res, next) => {
+  try {
+    const {id} = req.params;
+    const [
+      pugArticles,
+      pugCategories,
+    ] = await Promise.all([
+      api.getArticlesByCategory(id),
+      api.getCategories()
+    ]);
 
-  const activeCategory = pugCategories.find((category) => category.id === Number.parseInt(id, 10));
+    const activeCategory = pugCategories.find((category) => category.id === Number.parseInt(id, 10));
 
-  res.render(`articles/articles-by-category`, {activeCategory, pugArticles, pugCategories});
+    res.render(`articles/articles-by-category`, {activeCategory, pugArticles, pugCategories});
+  } catch (err) {
+    next(err);
+  }
 });
 
 
