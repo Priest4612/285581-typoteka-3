@@ -2,18 +2,14 @@
 
 const {Router} = require(`express`);
 const multer = require(`multer`);
-const path = require(`path`);
 const {nanoid} = require(`nanoid`);
-const {PROJECT_DIR, UPLOAD_DIR} = require(`../../../settings`);
+const {FrontDir: {UPLOAD_IMAGES_DIR}} = require(`../../constants`);
 const {formatDate, getTime} = require(`../../utils`).dateUtils;
 const {renderQueryString} = require(`../../utils`).queryUtils;
 
-const IMAGES_DIR = `img`;
-
-const uploadDirAbsolute = path.resolve(PROJECT_DIR, UPLOAD_DIR, IMAGES_DIR);
 
 const storage = multer.diskStorage({
-  destination: uploadDirAbsolute,
+  destination: UPLOAD_IMAGES_DIR,
   filename: (req, file, cb) => {
     const uniqeName = nanoid(10);
     const extension = file.originalname.split(`.`).pop();
@@ -29,7 +25,24 @@ const api = require(`../api`).getAPI();
 const {getLogger} = require(`../../service/lib/logger`);
 const logger = getLogger({name: `ARTICLES-ROUTER`});
 
-articlesRouter.get(`/category/:id`, (req, res) => res.render(`articles/all-categories`));
+articlesRouter.get(`/category/:id`, async (req, res, next) => {
+  try {
+    const {id} = req.params;
+    const [
+      pugArticles,
+      pugCategories,
+    ] = await Promise.all([
+      api.getArticlesByCategory(id),
+      api.getCategories()
+    ]);
+
+    const activeCategory = pugCategories.find((category) => category.id === Number.parseInt(id, 10));
+
+    res.render(`articles/articles-by-category`, {activeCategory, pugArticles, pugCategories});
+  } catch (err) {
+    next(err);
+  }
+});
 
 
 articlesRouter.get(`/edit/:id`, async (req, res, next) => {
@@ -89,7 +102,32 @@ articlesRouter.post(`/add`, upload.single(`picture`), async (req, res) => {
   }
 });
 
-articlesRouter.get(`/:id`, (req, res) => res.render(`articles/post`));
+articlesRouter.get(`/:id`, async (req, res, next) => {
+  try {
+    const {id} = req.params;
+    const [
+      pugArticle,
+      categories,
+    ] = await Promise.all([
+      api.getArticle(id),
+      api.getCategories(),
+    ]);
+
+    const categoryById = categories.reduce((acc, category) => ({
+      [category.id]: category,
+      ...acc
+    }), {});
+
+    const pugCategories = pugArticle.categories.map((item) => {
+      const category = categoryById[item.id];
+      return category;
+    });
+
+    res.render(`articles/post`, {pugArticle, pugCategories});
+  } catch (err) {
+    next(err);
+  }
+});
 
 
 module.exports = {

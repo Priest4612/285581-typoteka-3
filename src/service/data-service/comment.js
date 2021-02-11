@@ -1,34 +1,63 @@
 'use strict';
 
-const {nanoid} = require(`nanoid`);
-const {MAX_ID_LENGTH} = require(`../../constants`);
+const Alias = require(`../models/alias`);
 
 class CommentService {
-  findAll(articles) {
-    return articles.comments;
+  constructor(sequelize) {
+    this._Comment = sequelize.models.Comment;
   }
 
-  create(article, comment) {
-    const newComment = Object.assign({
-      id: nanoid(MAX_ID_LENGTH),
-    }, comment);
-
-    article.comments.push(newComment);
-    return comment;
+  async findAll() {
+    let results;
+    const include = [Alias.USERS, Alias.ARTICLES];
+    results = await this._Comment.findAll({include});
+    return await results.map((it) => it.get());
   }
 
-  drop(article, commentId) {
-    const dropComment = article.comments
-      .find((item) => item.id === commentId);
-
-    if (!dropComment) {
-      return null;
+  async findPage({limit, offset, last}) {
+    let results;
+    if (last) {
+      results = await this._Comment.findAll({
+        limit,
+        offset,
+        include: [Alias.USERS],
+        order: [
+          [`createdAt`, `DESC`],
+        ],
+      });
+    } else {
+      results = await this._Comment.findAll({
+        limit,
+        offset,
+        include: [Alias.USERS],
+        order: [
+          [`createdAt`, `DESC`],
+        ],
+      });
     }
+    return await results.map((it) => it.get());
+  }
 
-    article.comments = article.comments
-      .filter((item) => item.id !== commentId);
+  async findAllToArticle(articleId) {
+    return await this._Comment.findAll({
+      where: {articleId},
+      raw: true
+    });
+  }
 
-    return dropComment;
+  create(articleId, comment) {
+    return this._Comment.create({
+      articleId,
+      ...comment,
+    });
+  }
+
+  async drop(id) {
+    const deleteRaw = await this._Comment.destroy({
+      where: {id}
+    });
+
+    return !!deleteRaw;
   }
 }
 

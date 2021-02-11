@@ -1,0 +1,53 @@
+extends ../layouts/layout.pug
+
+block content
+  include ../partials/utils.pug
+
+  .wrapper
+    include ../partials/header-main.pug
+
+    main.articles-category
+      h1 #{activeCategory.name}
+      section.articles-category__theme-list
+        h2.visually-hidden Список тем
+        include ../partials/categories.pug
+
+      section.articles-category__list.preview
+        h2.visually-hidden Список превью статей
+
+        ul.preview__list
+          each pugArticle in pugArticles
+            li.preview__item
+              ul.preview__breadcrumbs
+                each category in pugArticle.categories
+                  li.preview__breadcrumbs-item
+                    a.preview__breadcrumbs-link(href=`../category/${category.id}`) #{category.name}
+              .preview__background
+                img.preview__background-image(src=pugArticle.images[0].path, width='460', height='240', alt='')
+              time.preview__time(datetime=pugArticle.createdAt) #{`${formatDate(pugArticle.createdAt)}`}
+              h3.preview__name
+                a.preview__name-link(href=`/articles/${pugArticle.id}`) #{pugArticle.title}
+              p.preview__text #{pugArticle.announce}
+              a.preview__comment(href='#')
+                | Комментарии
+                span.preview__cloud
+                b.preview__comment-count #{pugArticle.comments.length}
+
+      .preview__toggle-wrapper
+        ul.preview__pagination.pagination
+          li
+            a.pagination__button.button.button--backwards.button--disabled(href='#', aria-label='Страница назад') Назад
+          li.pagination__item.pagination__item--active
+            a(href='#') 1
+          li.pagination__item
+            a(href='#') 2
+          li.pagination__item
+            a(href='#') 3
+          li.pagination__item
+            a(href='#') 4
+          li.pagination__item
+            a(href='#') 5
+          li
+            a.pagination__button.button.button--forward(href='#', aria-label='Страница вперед') Вперед
+
+    include ../partials/footer.pug

@@ -8,7 +8,7 @@ const route = new Router();
 const searchRouter = (app, service) => {
   app.use(`/search`, route);
 
-  route.get(`/`, (req, res) => {
+  route.get(`/`, async (req, res) => {
     const {query = ``} = req.query;
 
     if (!query) {
@@ -17,7 +17,7 @@ const searchRouter = (app, service) => {
       return;
     }
 
-    const searchResults = service.findAll(query);
+    const searchResults = await service.findAll(query);
     const searchStatus = searchResults.length > 0
       ? HttpStatusCode.OK
       : HttpStatusCode.NOT_FOUND;

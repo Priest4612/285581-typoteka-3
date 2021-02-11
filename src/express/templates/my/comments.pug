@@ -1,18 +1,24 @@
-extends ../layouts/admin-layout
+extends ../layouts/layout.pug
 
 block content
-  main.main-page.main-page--padding
-    section.main-page__publication.publication
-      h1.publication__title Комментарии
-      ul.publication__list
-        each apiArticle in apiArticlesData
-          each commet in apiArticle.comments
+  include ../partials/utils.pug
+
+  .wrapper.wrapper--nobackground
+    include ../partials/header-admin.pug
+
+    main.main-page.main-page--padding
+      section.main-page__publication.publication
+        h1.publication__title Комментарии
+        ul.publication__list
+          each pugComment in pugComments
             li.publication__list-item
               .publication__header
-                img.publication__list-image(src='/img/avatar-small-2.png' width='20' height='20' alt='Аватар пользователя')
-                b.publication__list-name Александр Петров
-                time.publication__item-time(datetime=apiArticle.createDate) #{apiArticle.createDate}
-              a.publication__item-text(href='#') #{commet.text}
-              p.publication__text-strong #{apiArticle.title}
+                img.publication__list-image(src=`${pugComment.users.avatar}`, width='20', height='20', alt='Аватар пользователя')
+                b.publication__list-name #{`${pugComment.users.firstname} ${pugComment.users.lastname}`}
+                time.publication__item-time(datetime=`${pugComment.createdAt}`) #{`${formatDate(pugComment.createdAt)}`}
+              a.publication__item-text(href=`/articles/${pugComment.articles.id}`) #{`${pugComment.text}`}
+              p.publication__text-strong #{`${pugComment.articles.title}`}
               button.publication__button.button.button--close-item(type='button')
                 span.visually-hidden Закрыть строку списка
+
+    include ../partials/footer.pug

@@ -11,9 +11,24 @@ const api = require(`../api`).getAPI();
 const {getLogger} = require(`../../service/lib/logger`);
 const logger = getLogger({name: `SEARCH-ROUTER`});
 
-mainRouter.get(`/`, async (req, res) => {
-  const apiArticlesData = await api.getArticles();
-  res.render(`main/main`, {apiArticlesData});
+mainRouter.get(`/`, async (req, res, next) => {
+  try {
+    const [
+      pugArticles,
+      pugCategories,
+      pugHotArticles,
+      pugLastComments
+    ] = await Promise.all([
+      api.getArticles(),
+      api.getCategories(),
+      api.getArticles({limit: 4, offset: 0, hot: true}),
+      api.getComments({limit: 4, offset: 0, last: true})
+    ]);
+
+    res.render(`main/main`, {pugArticles, pugCategories, pugHotArticles, pugLastComments});
+  } catch (err) {
+    next(err);
+  }
 });
 
 mainRouter.get(`/register`, (req, res) => res.render(`main/sign-up`));
@@ -23,19 +38,27 @@ mainRouter.get(`/login`, (req, res) => res.render(`main/login`));
 mainRouter.get(`/search`, async (req, res) => {
   const {search} = req.query;
   try {
-    const results = await api.search(search);
+    const pugResults = await api.search(search);
     res.render(`main/search`, {
-      results, search
+      pugResults, search
     });
   } catch (error) {
     logger.error(error);
     res.render(`main/search`, {
-      results: [], search
+      pugResults: [], search
     });
   }
 });
 
-mainRouter.get(`/categories`, (req, res) => res.render(`main/articles-by-category`));
+mainRouter.get(`/categories`, async (req, res, next) => {
+  try {
+    const [pugCategories] = await Promise.all([api.getCategories()]);
+    res.render(`main/admin-categories`, {pugCategories});
+  } catch (err) {
+    next(err);
+  }
+});
+
 
 mainRouter.use(`/my`, myRouter);
 mainRouter.use(`/articles`, articlesRouter);

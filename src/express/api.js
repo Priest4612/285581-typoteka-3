@@ -18,20 +18,25 @@ class API {
     return response.data;
   }
 
-  getArticles() {
-    return this._load(`/articles`);
+  async getArticles({limit, offset, hot} = {}) {
+    return await this._load(`/articles`, {params: {limit, offset, hot}});
   }
 
-  getArticle(id) {
-    return this._load(`/articles/${id}`);
+  async getArticle(id) {
+    return await this._load(`/articles/${id}`);
   }
 
-  getCategories() {
-    return this._load(`/categories`);
+  async getArticlesByCategory(id) {
+    return await this._load(`/articles/category/${id}`);
   }
 
-  search(query) {
-    return this._load(`/search`, {params: {query}});
+  async getCategories(count) {
+    return await this._load(`/categories`, {params: {count}});
+  }
+
+  async search(query) {
+    const result = await this._load(`/search`, {params: {query}});
+    return result;
   }
 
   async createArticle(data) {
@@ -39,6 +44,10 @@ class API {
       method: `POST`,
       data
     });
+  }
+
+  async getComments({limit, offset, last} = {}) {
+    return await this._load(`/comments`, {params: {limit, offset, last}});
   }
 
 }
