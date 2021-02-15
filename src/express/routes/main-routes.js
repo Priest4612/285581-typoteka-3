@@ -2,6 +2,8 @@
 
 const {Router} = require(`express`);
 
+const {ARTICLES_PER_PAGE} = require(`../../constants`);
+
 const {myRouter} = require(`./my-routes`);
 const {articlesRouter} = require(`./articles-routes`);
 
@@ -13,19 +15,33 @@ const logger = getLogger({name: `SEARCH-ROUTER`});
 
 mainRouter.get(`/`, async (req, res, next) => {
   try {
+    let {page = 1} = req.query;
+    page = +page;
+    const limit = ARTICLES_PER_PAGE;
+    const offset = (page - 1) * ARTICLES_PER_PAGE;
+
     const [
-      pugArticles,
+      {count, articles},
       pugCategories,
       pugHotArticles,
       pugLastComments
     ] = await Promise.all([
-      api.getArticles(),
+      api.getArticles({limit, offset}),
       api.getCategories(),
       api.getArticles({limit: 4, offset: 0, hot: true}),
       api.getComments({limit: 4, offset: 0, last: true})
     ]);
 
-    res.render(`main/main`, {pugArticles, pugCategories, pugHotArticles, pugLastComments});
+    const totalPages = Math.ceil(count / ARTICLES_PER_PAGE);
+
+    res.render(`main/main`, {
+      pugArticles: articles,
+      pugCategories,
+      pugHotArticles,
+      pugLastComments,
+      page,
+      totalPages
+    });
   } catch (err) {
     next(err);
   }

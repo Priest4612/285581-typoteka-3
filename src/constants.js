@@ -7,6 +7,8 @@ const USER_ARGV_INDEX = 2;
 const DEFAULT_COMMAND = `--help`;
 const MAX_ID_LENGTH = 6;
 
+const ARTICLES_PER_PAGE = 8;
+
 const ExitCode = {
   SUCCESS: 0,
   ERROR: 1,
@@ -72,5 +74,6 @@ module.exports = {
   Env,
   DataFilePath,
   GenerateFileRequirements,
-  FrontDir
+  FrontDir,
+  ARTICLES_PER_PAGE
 };

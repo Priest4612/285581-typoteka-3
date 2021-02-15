@@ -23,7 +23,6 @@ class ArticleService {
   async findPage({limit, offset, hot}) {
 
     if (hot) {
-
       const sql = `
         SELECT "Article"."id", "Article"."announce", COUNT("comments"."articleId") AS "count"
         FROM "articles" AS "Article"
@@ -44,6 +43,7 @@ class ArticleService {
         limit,
         offset,
         include,
+        distinct: true,
         order: [
           [`createdAt`, `DESC`],
         ],
@@ -115,11 +115,12 @@ class ArticleService {
         }],
         limit,
         offset,
-        raw: true
+        distinct: true,
       });
 
       const articlesIdByCategoryId = rows.map((item) => item.id);
-
+      console.log(`count: ${count}`);
+      console.log(`articlesIdByCategoryId: ${articlesIdByCategoryId}`);
       return {count, articlesIdByCategoryId};
     };
 

@@ -30,7 +30,6 @@ const articleRouter = (app, articleService, commentService) => {
   route.get(`/category/:id`, async (req, res) => {
     const {id} = req.params;
     const {limit, offset} = req.query;
-
     let result;
     if (limit || offset) {
       result = await articleService.findByCategoryPage({id, limit, offset});

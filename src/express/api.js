@@ -26,8 +26,8 @@ class API {
     return await this._load(`/articles/${id}`);
   }
 
-  async getArticlesByCategory(id) {
-    return await this._load(`/articles/category/${id}`);
+  async getArticlesByCategory({id, limit, offset}) {
+    return await this._load(`/articles/category/${id}`, {params: {limit, offset}});
   }
 
   async getCategories(count) {
