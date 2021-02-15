@@ -23,7 +23,7 @@ class ArticleService {
   async findPage({limit, offset, hot}) {
 
     if (hot) {
-
+      console.log(`active hot`);
       const sql = `
         SELECT "Article"."id", "Article"."announce", COUNT("comments"."articleId") AS "count"
         FROM "articles" AS "Article"
@@ -39,11 +39,13 @@ class ArticleService {
       return await this._sequelize.query(sql, {type, replacements});
 
     } else {
+      console.log(`active page`);
       const include = [Alias.IMAGES, Alias.CATEGORIES, Alias.COMMENTS];
       const {count, rows} = await this._Article.findAndCountAll({
         limit,
         offset,
         include,
+        distinct: true,
         order: [
           [`createdAt`, `DESC`],
         ],
