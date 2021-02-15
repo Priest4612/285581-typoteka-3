@@ -23,7 +23,6 @@ class ArticleService {
   async findPage({limit, offset, hot}) {
 
     if (hot) {
-      console.log(`active hot`);
       const sql = `
         SELECT "Article"."id", "Article"."announce", COUNT("comments"."articleId") AS "count"
         FROM "articles" AS "Article"
@@ -39,7 +38,6 @@ class ArticleService {
       return await this._sequelize.query(sql, {type, replacements});
 
     } else {
-      console.log(`active page`);
       const include = [Alias.IMAGES, Alias.CATEGORIES, Alias.COMMENTS];
       const {count, rows} = await this._Article.findAndCountAll({
         limit,
@@ -117,11 +115,12 @@ class ArticleService {
         }],
         limit,
         offset,
-        raw: true
+        distinct: true,
       });
 
       const articlesIdByCategoryId = rows.map((item) => item.id);
-
+      console.log(`count: ${count}`);
+      console.log(`articlesIdByCategoryId: ${articlesIdByCategoryId}`);
       return {count, articlesIdByCategoryId};
     };
 

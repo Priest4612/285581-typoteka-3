@@ -3,7 +3,10 @@
 const {Router} = require(`express`);
 const multer = require(`multer`);
 const {nanoid} = require(`nanoid`);
-const {FrontDir: {UPLOAD_IMAGES_DIR}} = require(`../../constants`);
+const {
+  FrontDir: {UPLOAD_IMAGES_DIR},
+  ARTICLES_PER_PAGE
+} = require(`../../constants`);
 const {formatDate, getTime} = require(`../../utils`).dateUtils;
 const {renderQueryString} = require(`../../utils`).queryUtils;
 
@@ -28,17 +31,29 @@ const logger = getLogger({name: `ARTICLES-ROUTER`});
 articlesRouter.get(`/category/:id`, async (req, res, next) => {
   try {
     const {id} = req.params;
+    let {page = 1} = req.query;
+    page = +page;
+    const limit = ARTICLES_PER_PAGE;
+    const offset = (page - 1) * ARTICLES_PER_PAGE;
     const [
-      pugArticles,
+      {count, articlesIdByCategory},
       pugCategories,
     ] = await Promise.all([
-      api.getArticlesByCategory(id),
+      api.getArticlesByCategory({id, limit, offset}),
       api.getCategories()
     ]);
 
     const activeCategory = pugCategories.find((category) => category.id === Number.parseInt(id, 10));
 
-    res.render(`articles/articles-by-category`, {activeCategory, pugArticles, pugCategories});
+    const totalPages = Math.ceil(count / ARTICLES_PER_PAGE);
+
+    res.render(`articles/articles-by-category`, {
+      pugArticles: articlesIdByCategory,
+      activeCategory,
+      pugCategories,
+      page,
+      totalPages
+    });
   } catch (err) {
     next(err);
   }
