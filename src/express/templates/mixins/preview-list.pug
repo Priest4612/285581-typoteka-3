@@ -1,0 +1,18 @@
+mixin preview-list(pugArticles)
+  ul.preview__list
+    each pugArticle in pugArticles
+      li.preview__item
+        ul.preview__breadcrumbs
+          each category in pugArticle.categories
+            li.preview__breadcrumbs-item
+              a.preview__breadcrumbs-link(href=`../category/${category.id}`) #{category.name}
+        .preview__background
+          img.preview__background-image(src=pugArticle.images[0].path, width='460', height='240', alt='')
+        time.preview__time(datetime=pugArticle.createdAt) #{`${formatDate(pugArticle.createdAt)}`}
+        h3.preview__name
+          a.preview__name-link(href=`/articles/${pugArticle.id}`) #{pugArticle.title}
+        p.preview__text #{pugArticle.announce}
+        a.preview__comment(href='#')
+          | Комментарии
+          span.preview__cloud
+          b.preview__comment-count #{pugArticle.comments.length}

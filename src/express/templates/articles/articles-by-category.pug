@@ -3,6 +3,9 @@ extends ../layouts/layout.pug
 block content
   include ../partials/utils.pug
 
+  include ../mixins/preview-list.pug
+  include ../mixins/categories.pug
+
   .wrapper
     include ../partials/header-main.pug
 
@@ -10,28 +13,12 @@ block content
       h1 #{activeCategory.name}
       section.articles-category__theme-list
         h2.visually-hidden Список тем
-        include ../partials/categories.pug
+        +categories(pugCategories)
 
       section.articles-category__list.preview
         h2.visually-hidden Список превью статей
 
-        ul.preview__list
-          each pugArticle in pugArticles
-            li.preview__item
-              ul.preview__breadcrumbs
-                each category in pugArticle.categories
-                  li.preview__breadcrumbs-item
-                    a.preview__breadcrumbs-link(href=`../category/${category.id}`) #{category.name}
-              .preview__background
-                img.preview__background-image(src=pugArticle.images[0].path, width='460', height='240', alt='')
-              time.preview__time(datetime=pugArticle.createdAt) #{`${formatDate(pugArticle.createdAt)}`}
-              h3.preview__name
-                a.preview__name-link(href=`/articles/${pugArticle.id}`) #{pugArticle.title}
-              p.preview__text #{pugArticle.announce}
-              a.preview__comment(href='#')
-                | Комментарии
-                span.preview__cloud
-                b.preview__comment-count #{pugArticle.comments.length}
+        +preview-list(pugArticles)
 
       .preview__toggle-wrapper
         ul.preview__pagination.pagination
