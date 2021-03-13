@@ -5,7 +5,7 @@ module.exports = (sequelize, _DataTypes) => {
 
   class ArticleToCategory extends Model {
 
-    static associate(models) {
+    static associate(_models) {
       // define association here
     }
   }

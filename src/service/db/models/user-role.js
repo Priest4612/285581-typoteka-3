@@ -1,12 +1,13 @@
 'use strict';
 const {Model} = require(`sequelize`);
+const Alias = require(`../alias`);
 
 
 module.exports = (sequelize, DataTypes) => {
   class UserRole extends Model {
 
     static associate(models) {
-      // define association here
+      UserRole.hasMany(models.User, {as: Alias.USERS, foreignKey: `userRoleId`});
     }
   }
 

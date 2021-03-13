@@ -1,12 +1,14 @@
 'use strict';
 const {Model} = require(`sequelize`);
+const Alias = require(`../alias`);
+
 
 module.exports = (sequelize, DataTypes) => {
 
   class Image extends Model {
 
     static associate(models) {
-      // define association here
+      Image.belongsTo(models.Article, {as: Alias.ARTICLES, foreignKey: `articleId`});
     }
   }
 
