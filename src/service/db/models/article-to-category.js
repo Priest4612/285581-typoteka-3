@@ -12,7 +12,7 @@ module.exports = (sequelize, _DataTypes) => {
 
   ArticleToCategory.init({}, {
     sequelize,
-    modelName: `AtricleToCategory`,
+    modelName: `ArticleToCategory`,
     tableName: `articleToCategories`,
     timestamps: false,
     paranoid: false,

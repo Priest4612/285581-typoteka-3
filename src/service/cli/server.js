@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require(`express`);
-const {sequelize} = require(`../lib/sequelize`);
+const {sequelize} = require(`../db/models`);
 
 const routes = require(`../api`).app;
 const {ExitCode, HttpStatusCode, API_PREFIX} = require(`../../constants`);

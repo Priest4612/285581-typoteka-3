@@ -5,7 +5,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     return queryInterface.addColumn(
         Alias.USERS,
-        `userRolesId`,
+        `userRoleId`,
         {
           type: Sequelize.INTEGER,
           references: {
@@ -54,7 +54,7 @@ module.exports = {
           {
             type: Sequelize.INTEGER,
             references: {
-              model: Alias.USER_ROLES,
+              model: Alias.USERS,
               key: `id`,
             },
             onUpdate: `CASCADE`,
@@ -80,7 +80,7 @@ module.exports = {
     .then(() => {
       return queryInterface.addColumn(
           Alias.ARTICLE_TO_CATEGORIES,
-          `categoyId`,
+          `categoryId`,
           {
             type: Sequelize.INTEGER,
             references: {
@@ -112,7 +112,7 @@ module.exports = {
   down: async (queryInterface, _Sequelize) => {
     return queryInterface.removeColumn(
         Alias.USERS,
-        `userRolesId`,
+        `userRoleId`,
     )
     .then(() => {
       return queryInterface.removeColumn(
@@ -141,7 +141,7 @@ module.exports = {
     .then(() => {
       return queryInterface.removeColumn(
           Alias.ARTICLE_TO_CATEGORIES,
-          `categoyId`,
+          `categoryId`,
       );
     })
     .then(() => {

@@ -14,11 +14,9 @@ const {
   SearchService,
 } = require(`../data-service`);
 
-const {sequelize} = require(`../lib/sequelize`);
-const defineModels = require(`../models`);
+const {sequelize} = require(`../db/models`);
 
 const app = new Router();
-defineModels(sequelize);
 
 (async () => {
   articleRouter(app, new ArticleService(sequelize), new CommentService(sequelize));

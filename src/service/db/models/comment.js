@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     modelName: `Comment`,
     tableName: `comments`,
     timestamps: true,
-    paranoid: true,
+    paranoid: false,
   });
 
   return Comment;

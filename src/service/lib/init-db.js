@@ -1,13 +1,12 @@
 'use strict';
 
-const defineModels = require(`../models`);
-const Alias = require(`../models/alias`);
+const defineModels = require(`../db/models`);
+const Alias = require(`../db/alias`);
 
 const initDB = async (sequelize, {data}) => {
   const {roles, users, categories, articles} = data;
 
-  const {Category, Article, UserRole, User} = defineModels(sequelize);
-  await sequelize.sync({force: true});
+  const {Category, Article, UserRole, User} = defineModels;
 
   const categoryModels = await Category.bulkCreate(
       categories.map((item) => ({name: item}))

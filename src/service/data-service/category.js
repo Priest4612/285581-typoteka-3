@@ -1,12 +1,12 @@
 'use strict';
 
 const Sequelize = require(`sequelize`);
-const Alias = require(`../models/alias`);
+const Alias = require(`../db/alias`);
 
 class CategoryService {
   constructor(sequelize) {
     this._Category = sequelize.models.Category;
-    this._AtricleToCategory = sequelize.models.AtricleToCategory;
+    this._ArticleToCategory = sequelize.models.ArticleToCategory;
   }
 
   async findAll() {
@@ -27,7 +27,7 @@ class CategoryService {
         [`id`, `ASC`],
       ],
       include: [{
-        model: this._AtricleToCategory,
+        model: this._ArticleToCategory,
         as: Alias.ARTICLE_TO_CATEGORIES,
         attributes: []
       }]
