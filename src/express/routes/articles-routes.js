@@ -7,12 +7,11 @@ const {
   FrontDir: {UPLOAD_IMAGES_DIR},
   ARTICLES_PER_PAGE
 } = require(`../../constants`);
-const {formatDate} = require(`../../utils`).dateUtils;
 
 const api = require(`../api`).getAPI();
 
-const {getLogger} = require(`../../service/lib/logger`);
-const logger = getLogger({name: `ARTICLES-ROUTER`});
+// const {getLogger} = require(`../../service/lib/logger`);
+// const logger = getLogger({name: `ARTICLES-ROUTER`});
 
 const storage = multer.diskStorage({
   destination: UPLOAD_IMAGES_DIR,
@@ -74,6 +73,9 @@ articlesRouter.get(`/edit/:id`, async (req, res, next) => {
 
 articlesRouter.post(`/edit/:id`, upload.single(`upload`), async (req, res) => {
   const {body, file} = req;
+  const [apiCategoriesData] = await Promise.all([
+    api.getCategories()
+  ]);
 
   const apiArticleData = {
     images: [{
@@ -85,17 +87,18 @@ articlesRouter.post(`/edit/:id`, upload.single(`upload`), async (req, res) => {
   };
 
   if (body.categories) {
-    apiArticleData.categories = body.categories;
+    let categories = [];
+    body.categories.forEach((category) => {
+      categories.push(apiCategoriesData.find((apiCategory) => apiCategory.name === category));
+    });
+
+    apiArticleData.categories = categories;
   }
 
   try {
     await api.editArticle(apiArticleData);
     res.redirect(`/my`);
   } catch (err) {
-    const [apiCategoriesData] = await Promise.all([
-      api.getCategories()
-    ]);
-    console.log(apiArticleData);
     res.render(`articles/new-post`, {apiArticleData, apiCategoriesData});
   }
 });
@@ -107,11 +110,21 @@ articlesRouter.get(`/add`, async (req, res) => {
 
 articlesRouter.post(`/add`, upload.single(`upload`), async (req, res) => {
   const {body, file} = req;
+
+  const [apiCategoriesData] = await Promise.all([
+    api.getCategories()
+  ]);
+
+  let categories = [];
+  body.categories.forEach((category) => {
+    categories.push(apiCategoriesData.find((apiCategory) => apiCategory.name === category));
+  });
+
   const apiArticleData = {
     images: [{
       path: body.photo || file && file.filename
     }],
-    categories: body.categories,
+    categories,
     title: body.title,
     announce: body[`announcement`],
     fullText: body[`full-text`]
@@ -121,9 +134,6 @@ articlesRouter.post(`/add`, upload.single(`upload`), async (req, res) => {
     await api.createArticle(apiArticleData);
     res.redirect(`/my`);
   } catch (err) {
-    const [apiCategoriesData] = await Promise.all([
-      api.getCategories()
-    ]);
     res.render(`articles/new-post`, {apiArticleData, apiCategoriesData});
   }
 });

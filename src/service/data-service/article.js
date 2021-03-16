@@ -119,8 +119,6 @@ class ArticleService {
       });
 
       const articlesIdByCategoryId = rows.map((item) => item.id);
-      console.log(`count: ${count}`);
-      console.log(`articlesIdByCategoryId: ${articlesIdByCategoryId}`);
       return {count, articlesIdByCategoryId};
     };
 
