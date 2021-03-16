@@ -7,9 +7,12 @@ const {
   FrontDir: {UPLOAD_IMAGES_DIR},
   ARTICLES_PER_PAGE
 } = require(`../../constants`);
-const {formatDate, getTime} = require(`../../utils`).dateUtils;
-const {renderQueryString} = require(`../../utils`).queryUtils;
+const {formatDate} = require(`../../utils`).dateUtils;
 
+const api = require(`../api`).getAPI();
+
+const {getLogger} = require(`../../service/lib/logger`);
+const logger = getLogger({name: `ARTICLES-ROUTER`});
 
 const storage = multer.diskStorage({
   destination: UPLOAD_IMAGES_DIR,
@@ -23,10 +26,6 @@ const storage = multer.diskStorage({
 const upload = multer({storage});
 
 const articlesRouter = new Router();
-const api = require(`../api`).getAPI();
-
-const {getLogger} = require(`../../service/lib/logger`);
-const logger = getLogger({name: `ARTICLES-ROUTER`});
 
 articlesRouter.get(`/category/:id`, async (req, res, next) => {
   try {
@@ -67,53 +66,65 @@ articlesRouter.get(`/edit/:id`, async (req, res, next) => {
       api.getArticle(id),
       api.getCategories()
     ]);
-    res.render(`articles/edit`, {apiArticleData, apiCategoriesData});
+    await res.render(`articles/new-post`, {apiArticleData, apiCategoriesData});
   } catch (error) {
-    logger.error(error);
     next(error);
+  }
+});
+
+articlesRouter.post(`/edit/:id`, upload.single(`upload`), async (req, res) => {
+  const {body, file} = req;
+
+  const apiArticleData = {
+    images: [{
+      path: body.photo || file && file.filename
+    }],
+    title: body.title,
+    announce: body[`announcement`],
+    fullText: body[`full-text`]
+  };
+
+  if (body.categories) {
+    apiArticleData.categories = body.categories;
+  }
+
+  try {
+    await api.editArticle(apiArticleData);
+    res.redirect(`/my`);
+  } catch (err) {
+    const [apiCategoriesData] = await Promise.all([
+      api.getCategories()
+    ]);
+    console.log(apiArticleData);
+    res.render(`articles/new-post`, {apiArticleData, apiCategoriesData});
   }
 });
 
 articlesRouter.get(`/add`, async (req, res) => {
   const apiCategoriesData = await api.getCategories();
-  const currentDate = formatDate(new Date()).split(` `)[0];
-  res.render(`articles/new-post`, {
-    apiCategoriesData,
-    currentDate,
-    prevArticleData: Object.keys(req.query).length === 0 ? null : req.query,
-  });
+  res.render(`articles/new-post`, {apiCategoriesData});
 });
 
-articlesRouter.post(`/add`, upload.single(`picture`), async (req, res) => {
+articlesRouter.post(`/add`, upload.single(`upload`), async (req, res) => {
   const {body, file} = req;
-  const currentTime = getTime(new Date());
-  const articleData = {
+  const apiArticleData = {
+    images: [{
+      path: body.photo || file && file.filename
+    }],
+    categories: body.categories,
     title: body.title,
-    announce: body.announce,
-    fullText: body.fullText,
-    createDate: `${body.createDate}, ${currentTime}`,
-    category: body.category || [],
+    announce: body[`announcement`],
+    fullText: body[`full-text`]
   };
 
-  if (file) {
-    articleData.picture = file.filename;
-  }
-
-  if (typeof articleData.category === `string`) {
-    articleData.category = [articleData.category];
-  }
-
   try {
-    await api.createArticle(articleData);
+    await api.createArticle(apiArticleData);
     res.redirect(`/my`);
-  } catch (error) {
-    logger.error(`Ошибка добавления поста: ${error.message}`);
-    res.redirect(
-        `/articles/add${renderQueryString({
-          ...articleData,
-          createDate: body.createDate,
-        })}`
-    );
+  } catch (err) {
+    const [apiCategoriesData] = await Promise.all([
+      api.getCategories()
+    ]);
+    res.render(`articles/new-post`, {apiArticleData, apiCategoriesData});
   }
 });
 

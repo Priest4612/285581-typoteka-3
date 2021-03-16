@@ -1,86 +1,56 @@
-extends ../layouts/admin-layout
+extends ../layouts/layout.pug
 
 block content
-  main
-    section.modal.modal--flex
-      .popup.popup--new-publication.popup--flex
-        .new-publication
-          form(action='/articles/add' method='POST' enctype="multipart/form-data" autocomplete="off")
-            .new-publication__header
-              h1 Новая публикация
-              .new-publication__date-form
-                h3 Дата публикации
-                .new-publication__date-form-division
-                  .new-publication__date-block
-                    label(for='new-publication-date' aria-label='Календарь')
+  body
+    .wrapper
+      include ../partials/header-admin.pug
 
-                    input#new-publication-date(
-                      type='text' name='createDate'
-                      value=(
-                        prevArticleData
-                          ? prevArticleData.createDate
-                          : currentDate
-                      ),
-                      placeholder=currentDate
-                    )
+      main
+        section
+          .popup.popup--new-publication.popup--anti
+            .new-publication
+              form(action=`${apiArticleData ? `/articles/edit/${apiArticleData.id}`: `/articles/add/`}`, method='post', enctype='multipart/form-data', autocomplete='off')
+                .new-publication__header
+                  h1 Новая публикация
+                  .new-publication__date-form
+                    h3 Дата публикации
+                    .new-publication__date-form-division
+                      .new-publication__date-block
+                        label(for='new-publication-date', aria-label='Календарь')
+                        input(id='new-publication-date', type='text', name='date', placeholder=`${apiArticleData && apiArticleData.createdAt || `${new Date().toJSON().split('T')[0]}`}`)
+                  button.new-publication__button.button.button--colored(type='submit') Опубликовать
+                a.popup__button.button.button--popup-close(aria-label='Закрыть окно')
+                  | Закрыть
+                  | окно
+                .new-publication__form.form
+                  .form__wrapper.form__wrapper--intro
+                    .form__field
+                      label
+                        input(type='text', name='title', placeholder='Заголовок', value=`${apiArticleData && apiArticleData.title || ''}`, required='')
+                    .form__field.form__field--post-image
+                      label
+                        input(id='image-name-field', type='text', name='photo', value=`${apiArticleData && apiArticleData.images[0].path || ''}`, placeholder='Фотография', readonly='')
+                      .form__image-loader.form__image-loader--publication
+                        label
+                          input.visually-hidden(type='file', name='upload')
+                          | Обзор
+                      if apiArticleData
+                        button.button.button--transparent Удалить
 
-              button.new-publication__button.button.button--colored(type='submit') Опубликовать
-            button.popup__button.button.button--popup-close(type='button' aria-label='Закрыть окно')
-              | Закрыть
-              | окно
-            .new-publication__form.form
-              .form__wrapper.form__wrapper--intro
-                .form__field
-                  label
-                    input(
-                      type='text' placeholder='Заголовок'
-                      value=(
-                        prevArticleData
-                          ? prevArticleData.title
-                          : ''
-                      )
-                      name='title', required=''
-                    )
+                    .new-publication__category-wrapper
+                      each category in apiCategoriesData
+                        .new-publication__checkbox.new-publication__checkbox--auto
+                          input(
+                            id=`${`checkbox-category-${category.id}`}`, type='checkbox', name='categories', checked=(apiArticleData && apiArticleData.categories ? apiArticleData.categories.some((item) => item.name === category.name) : false), value=category.name)
+                          label(for=`${`checkbox-category-${category.id}`}`) #{category.name}
 
-                .form__field.form__field--post-image
-                  label
-                    input#image-name-field(
-                      type='text' placeholder='Фотография'
-                      value=(
-                        prevArticleData
-                          ? prevArticleData.picture
-                          : ''
-                      )
-                      readonly=''
-                    )
-                  .form__image-loader.form__image-loader--publication
+                      a.new-publication__form-link.button.button--transparent(href='#') Добавить категорию
+                  .form__wrapper.form__wrapper--text
+                    .form__field.form__field--publication-text
+                      label
+                        textarea(rows='5', name='announcement', placeholder='Анонс публикации') #{apiArticleData && apiArticleData.announce || ''}
+                    .form__field.form__field--publication-text
+                      label
+                        textarea(rows='10', name='full-text', placeholder='Полный текст публикации') #{apiArticleData && apiArticleData.fullText || ''}
 
-                    label
-                      input.visually-hidden(type='file', name='picture')
-                      | Обзор
-
-                each apiCategory in apiCategoriesData
-                  .new-publication__checkbox.new-publication__checkbox--auto
-                    input(
-                      type='checkbox' name='category'
-                      value=`${apiCategory}`
-                      id=`checkbox-auto-${apiCategory}`
-                      checked=(
-                        prevArticleData
-                          ? prevArticleData.category.includes(apiCategory)
-                          : false
-                      )
-                    )
-
-                    label(for=`checkbox-auto-${apiCategory}`) #{apiCategory}
-                a.new-publication__form-link.button.button--transparent(href='#') Добавить категорию
-
-              .form__wrapper.form__wrapper--text
-                .form__field.form__field--publication-text
-                  label
-                    textarea(rows='1' placeholder='Анонс публикации' name='announce') #{prevArticleData ? prevArticleData.announce : ''}
-
-                .form__field.form__field--publication-text
-                  label
-                    textarea(rows='1' placeholder='Полный текст публикации' name='fullText') #{prevArticleData ? prevArticleData.fullText : ''}
-      .modal__overlay
+      include ../partials/footer.pug

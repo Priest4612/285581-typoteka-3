@@ -46,6 +46,13 @@ class API {
     });
   }
 
+  async editArticle(id, data) {
+    return this._load(`/articles/${id}`, {
+      method: `PUT`,
+      data,
+    });
+  }
+
   async getComments({limit, offset, last} = {}) {
     return await this._load(`/comments`, {params: {limit, offset, last}});
   }
