@@ -83,7 +83,8 @@ articlesRouter.post(`/edit/:id`, upload.single(`upload`), async (req, res) => {
     }],
     title: body.title,
     announce: body[`announcement`],
-    fullText: body[`full-text`]
+    fullText: body[`full-text`],
+    userId: 1,
   };
 
   if (body.categories) {
@@ -127,7 +128,8 @@ articlesRouter.post(`/add`, upload.single(`upload`), async (req, res) => {
     categories,
     title: body.title,
     announce: body[`announcement`],
-    fullText: body[`full-text`]
+    fullText: body[`full-text`],
+    userId: 1,
   };
 
   try {
