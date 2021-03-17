@@ -2,8 +2,7 @@
 
 const {HttpStatusCode} = require(`../../constants`);
 
-
-module.exports = (schema) => (
+const schemaValidator = (schema) => (
   async (req, res, next) => {
     const {body} = req;
     try {
@@ -20,3 +19,7 @@ module.exports = (schema) => (
     next();
   }
 );
+
+module.exports = {
+  schemaValidator
+};
