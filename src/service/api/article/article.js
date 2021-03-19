@@ -65,12 +65,13 @@ const articleRouter = (app, articleService, commentService) => {
 
   route.put(`/:articleId`, schemaValidator(articleSchema), async (req, res) => {
     const {articleId} = req.query;
+
     const updateArticle = await articleService.update(articleId, req.body);
+
     if (!updateArticle) {
       return res.status(HttpStatusCode.NOT_FOUND)
         .send(`Not found with ${articleId}`);
     }
-
 
     return res.status(HttpStatusCode.OK)
       .send(`Updated`);
