@@ -4,6 +4,7 @@ block content
   body
     .wrapper
       include ../partials/header-admin.pug
+      include ../mixins/validation-error.pug
 
       main
         section
@@ -52,5 +53,8 @@ block content
                     .form__field.form__field--publication-text
                       label
                         textarea(rows='10', name='full-text', placeholder='Полный текст публикации') #{apiArticleData && apiArticleData.fullText || ''}
+
+              if (validationErrors)
+                +validation-error('Ошибка сохранения поста:', validationErrors)
 
       include ../partials/footer.pug

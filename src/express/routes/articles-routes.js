@@ -72,7 +72,9 @@ articlesRouter.get(`/edit/:id`, async (req, res, next) => {
 });
 
 articlesRouter.post(`/edit/:id`, upload.single(`upload`), async (req, res) => {
+  const {id} = req.params.id;
   const {body, file} = req;
+
   const [apiCategoriesData] = await Promise.all([
     api.getCategories()
   ]);
@@ -97,10 +99,14 @@ articlesRouter.post(`/edit/:id`, upload.single(`upload`), async (req, res) => {
   }
 
   try {
-    await api.editArticle(apiArticleData);
+    await api.editArticle(id, apiArticleData);
     res.redirect(`/my`);
   } catch (err) {
-    res.render(`articles/new-post`, {apiArticleData, apiCategoriesData});
+    res.render(`articles/new-post`, {
+      apiArticleData,
+      apiCategoriesData,
+      validationErrors: err.response.data.message,
+    });
   }
 });
 
@@ -136,7 +142,12 @@ articlesRouter.post(`/add`, upload.single(`upload`), async (req, res) => {
     await api.createArticle(apiArticleData);
     res.redirect(`/my`);
   } catch (err) {
-    res.render(`articles/new-post`, {apiArticleData, apiCategoriesData});
+    console.log(err.response.data.message);
+    res.render(`articles/new-post`, {
+      apiArticleData,
+      apiCategoriesData,
+      validationErrors: err.response.data.message,
+    });
   }
 });
 

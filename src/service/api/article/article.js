@@ -74,7 +74,7 @@ const articleRouter = (app, articleService, commentService) => {
     }
 
     return res.status(HttpStatusCode.OK)
-      .send(`Updated`);
+      .send(updateArticle);
   });
 
   route.delete(`/:articleId`, async (req, res) => {

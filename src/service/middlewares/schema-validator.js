@@ -5,6 +5,7 @@ const {HttpStatusCode} = require(`../../constants`);
 const schemaValidator = (schema) => (
   async (req, res, next) => {
     const {body} = req;
+
     try {
       await schema.validateAsync(body, {abortEarly: false});
     } catch (err) {

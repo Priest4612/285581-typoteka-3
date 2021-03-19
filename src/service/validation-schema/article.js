@@ -14,13 +14,21 @@ module.exports = Joi.object({
   fullText: Joi.string()
         .max(1000)
         .required(),
-  category: Joi.array()
+  categories: Joi.array()
         .items(Joi.object({
-          id: Joi.number,
-          name: Joi.string,
+          id: Joi.number()
+          .required(),
+          name: Joi.string()
+          .required(),
         }))
         .min(1)
         .required(),
-  picture: Joi.string()
-        .pattern(/([a-zA-Z0-9\s_\\.\-\(\):])+(.png|.jpg)$/i),
+  images: Joi.array()
+        .items(Joi.object({
+          path: Joi.string()
+          .pattern(/([a-zA-Z0-9\s_\\.\-\(\):])+(.png|.jpg)$/i)
+          .required(),
+        })),
+  userId: Joi.number()
+  .required(),
 });
