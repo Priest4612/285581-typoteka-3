@@ -142,7 +142,6 @@ articlesRouter.post(`/add`, upload.single(`upload`), async (req, res) => {
     await api.createArticle(apiArticleData);
     res.redirect(`/my`);
   } catch (err) {
-    console.log(err.response.data.message);
     res.render(`articles/new-post`, {
       apiArticleData,
       apiCategoriesData,
