@@ -27,7 +27,7 @@ mainRouter.get(`/`, async (req, res, next) => {
       pugLastComments
     ] = await Promise.all([
       api.getArticles({limit, offset}),
-      api.getCategories(),
+      api.getCategories({needCount: 1}),
       api.getArticles({limit: 4, offset: 0, hot: true}),
       api.getComments({limit: 4, offset: 0, last: true})
     ]);

@@ -1,6 +1,6 @@
 'use strict';
 
-const Sequelize = require(`sequelize`);
+const {Sequelize} = require(`../db/models`);
 const Alias = require(`../db/alias`);
 
 class CategoryService {
@@ -9,29 +9,39 @@ class CategoryService {
     this._ArticleToCategory = sequelize.models.ArticleToCategory;
   }
 
-  async findAll() {
-    const result = await this._Category.findAll({
-      attributes: [
-        `id`,
-        `name`,
-        [
+  async findAll({needCount}) {
+    const attributes = [
+      `id`,
+      `name`,
+    ];
+    const group = [];
+    const order = [];
+    const include = [];
+
+    if (Number.parseInt(needCount, 10)) {
+      attributes.push(
           Sequelize.fn(
               `COUNT`,
               Sequelize.col(`articleToCategories.articleId`)
           ),
           `count`
-        ]
-      ],
-      group: [Sequelize.col(`Category.id`)],
-      order: [
-        [`id`, `ASC`],
-      ],
-      include: [{
+      );
+      group.push(Sequelize.col(`Category.id`));
+      include.push({
         model: this._ArticleToCategory,
         as: Alias.ARTICLE_TO_CATEGORIES,
         attributes: []
-      }]
-    });
+      });
+    }
+
+    const options = {
+      attributes,
+      group,
+      order,
+      include,
+    };
+
+    const result = await this._Category.findAll(options);
     return await result.map((it) => it.get());
   }
 }

@@ -30,8 +30,8 @@ class API {
     return await this._load(`/articles/category/${id}`, {params: {limit, offset}});
   }
 
-  async getCategories(count) {
-    return await this._load(`/categories`, {params: {count}});
+  async getCategories({needCount}) {
+    return await this._load(`/categories`, {params: {needCount}});
   }
 
   async search(query) {

@@ -38,7 +38,7 @@ articlesRouter.get(`/category/:id`, async (req, res, next) => {
       pugCategories,
     ] = await Promise.all([
       api.getArticlesByCategory({id, limit, offset}),
-      api.getCategories()
+      api.getCategories({needCount: 1})
     ]);
 
     const activeCategory = pugCategories.find((category) => category.id === Number.parseInt(id, 10));
@@ -63,7 +63,7 @@ articlesRouter.get(`/edit/:id`, async (req, res, next) => {
     const {id} = req.params;
     const [apiArticleData, apiCategoriesData] = await Promise.all([
       api.getArticle(id),
-      api.getCategories()
+      api.getCategories({needCount: 0})
     ]);
     await res.render(`articles/new-post`, {apiArticleData, apiCategoriesData});
   } catch (error) {
@@ -76,7 +76,7 @@ articlesRouter.post(`/edit/:id`, upload.single(`upload`), async (req, res) => {
   const {body, file} = req;
 
   const [apiCategoriesData] = await Promise.all([
-    api.getCategories()
+    api.getCategories({needCount: 0})
   ]);
 
   const apiArticleData = {
@@ -111,7 +111,7 @@ articlesRouter.post(`/edit/:id`, upload.single(`upload`), async (req, res) => {
 });
 
 articlesRouter.get(`/add`, async (req, res) => {
-  const apiCategoriesData = await api.getCategories();
+  const apiCategoriesData = await api.getCategories({needCount: 0});
   res.render(`articles/new-post`, {apiCategoriesData});
 });
 
@@ -119,7 +119,7 @@ articlesRouter.post(`/add`, upload.single(`upload`), async (req, res) => {
   const {body, file} = req;
 
   const [apiCategoriesData] = await Promise.all([
-    api.getCategories()
+    api.getCategories({needCount: 0})
   ]);
 
   let categories = [];
@@ -132,7 +132,7 @@ articlesRouter.post(`/add`, upload.single(`upload`), async (req, res) => {
       path: body.photo || file && file.filename
     }],
     categories,
-    title: body.title,
+    title: body[`title`],
     announce: body[`announcement`],
     fullText: body[`full-text`],
     userId: 1,
@@ -158,7 +158,7 @@ articlesRouter.get(`/:id`, async (req, res, next) => {
       categories,
     ] = await Promise.all([
       api.getArticle(id),
-      api.getCategories(),
+      api.getCategories({needCount: 1}),
     ]);
 
     const categoryById = categories.reduce((acc, category) => ({
