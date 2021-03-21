@@ -72,7 +72,7 @@ articlesRouter.get(`/edit/:id`, async (req, res, next) => {
 });
 
 articlesRouter.post(`/edit/:id`, upload.single(`upload`), async (req, res) => {
-  const {id} = req.params.id;
+  const {id} = req.params;
   const {body, file} = req;
 
   const [apiCategoriesData] = await Promise.all([
@@ -84,24 +84,28 @@ articlesRouter.post(`/edit/:id`, upload.single(`upload`), async (req, res) => {
       path: body.photo || file && file.filename
     }],
     title: body.title,
-    announce: body[`announcement`],
+    announce: body.announcement,
     fullText: body[`full-text`],
     userId: 1,
   };
 
   if (body.categories) {
-    let categories = [];
-    body.categories.forEach((category) => {
-      categories.push(apiCategoriesData.find((apiCategory) => apiCategory.name === category));
-    });
-
-    apiArticleData.categories = categories;
+    apiArticleData.categories = body.categories;
   }
 
   try {
     await api.editArticle(id, apiArticleData);
     res.redirect(`/my`);
   } catch (err) {
+    if (body.categories) {
+      let categories = [];
+      body.categories.forEach((category) => {
+        categories.push(apiCategoriesData.find((apiCategory) => apiCategory.id === Number.parseInt(category, 10)));
+      });
+
+      apiArticleData.categories = categories;
+    }
+
     res.render(`articles/new-post`, {
       apiArticleData,
       apiCategoriesData,
@@ -122,18 +126,13 @@ articlesRouter.post(`/add`, upload.single(`upload`), async (req, res) => {
     api.getCategories({needCount: 0})
   ]);
 
-  let categories = [];
-  body.categories.forEach((category) => {
-    categories.push(apiCategoriesData.find((apiCategory) => apiCategory.name === category));
-  });
-
   const apiArticleData = {
     images: [{
       path: body.photo || file && file.filename
     }],
-    categories,
-    title: body[`title`],
-    announce: body[`announcement`],
+    categories: body.categories,
+    title: body.title,
+    announce: body.announcement,
     fullText: body[`full-text`],
     userId: 1,
   };
@@ -142,6 +141,11 @@ articlesRouter.post(`/add`, upload.single(`upload`), async (req, res) => {
     await api.createArticle(apiArticleData);
     res.redirect(`/my`);
   } catch (err) {
+    let categories = [];
+    body.categories.forEach((category) => {
+      categories.push(apiCategoriesData.find((apiCategory) => apiCategory.name === category));
+    });
+
     res.render(`articles/new-post`, {
       apiArticleData,
       apiCategoriesData,

@@ -64,7 +64,8 @@ const articleRouter = (app, articleService, commentService) => {
   });
 
   route.put(`/:articleId`, schemaValidator(articleSchema), async (req, res) => {
-    const {articleId} = req.query;
+    const {articleId} = req.params;
+    console.log(articleId);
 
     const updateArticle = await articleService.update(articleId, req.body);
 

@@ -42,7 +42,7 @@ block content
                       each category in apiCategoriesData
                         .new-publication__checkbox.new-publication__checkbox--auto
                           input(
-                            id=`${`checkbox-category-${category.id}`}`, type='checkbox', name='categories', checked=(apiArticleData && apiArticleData.categories ? apiArticleData.categories.some((item) => item.name === category.name) : false), value=category.name)
+                            id=`${`checkbox-category-${category.id}`}`, type='checkbox', name='categories', checked=(apiArticleData && apiArticleData.categories ? apiArticleData.categories.some((item) => item.id === category.id) : false), value=category.id)
                           label(for=`${`checkbox-category-${category.id}`}`) #{category.name}
 
                       a.new-publication__form-link.button.button--transparent(href='#') Добавить категорию
