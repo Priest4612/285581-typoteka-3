@@ -1,6 +1,6 @@
 'use strict';
 
-const Alias = require(`../models/alias`);
+const Alias = require(`../db/alias`);
 const {Op} = require(`sequelize`);
 
 
@@ -119,8 +119,6 @@ class ArticleService {
       });
 
       const articlesIdByCategoryId = rows.map((item) => item.id);
-      console.log(`count: ${count}`);
-      console.log(`articlesIdByCategoryId: ${articlesIdByCategoryId}`);
       return {count, articlesIdByCategoryId};
     };
 
@@ -146,12 +144,16 @@ class ArticleService {
     return article.get();
   }
 
-  async update(id, articleData) {
-    const [affectedRows] = await this._Article.update(articleData, {
-      where: {id}
-    });
+  async update(id, changedArticleData) {
+    console.log(id);
 
-    return !!affectedRows;
+    const affectedArticle = await this._Article.findByPk(id);
+    const categories = await affectedArticle.getCategories();
+    await affectedArticle.removeCategories(categories);
+    await affectedArticle.update(changedArticleData);
+    await affectedArticle.addCategories(changedArticleData.categories);
+
+    return affectedArticle.get();
   }
 
   async drop(id) {

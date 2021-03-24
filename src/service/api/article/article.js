@@ -3,11 +3,13 @@
 const {Router} = require(`express`);
 const {HttpStatusCode} = require(`../../../constants`);
 const {
-  articleValidator,
   articleExists,
-  commentValidator
+  schemaValidator,
 } = require(`../../middlewares`);
-
+const {
+  commentSchema,
+  articleSchema,
+} = require(`../../validation-schema`);
 
 const articleRouter = (app, articleService, commentService) => {
   const route = new Router();
@@ -54,24 +56,26 @@ const articleRouter = (app, articleService, commentService) => {
       .json(article);
   });
 
-  route.post(`/`, articleValidator, async (req, res) => {
+  route.post(`/`, schemaValidator(articleSchema), async (req, res) => {
     const article = await articleService.create(req.body);
 
     return res.status(HttpStatusCode.CREATED)
       .json(article);
   });
 
-  route.put(`/:articleId`, articleValidator, async (req, res) => {
-    const {articleId} = req.query;
+  route.put(`/:articleId`, schemaValidator(articleSchema), async (req, res) => {
+    const {articleId} = req.params;
+    console.log(articleId);
+
     const updateArticle = await articleService.update(articleId, req.body);
+
     if (!updateArticle) {
       return res.status(HttpStatusCode.NOT_FOUND)
         .send(`Not found with ${articleId}`);
     }
 
-
     return res.status(HttpStatusCode.OK)
-      .send(`Updated`);
+      .send(updateArticle);
   });
 
   route.delete(`/:articleId`, async (req, res) => {
@@ -109,7 +113,7 @@ const articleRouter = (app, articleService, commentService) => {
       .json(deletedComment);
   });
 
-  route.post(`/:articleId/comments`, [articleExists(articleService), commentValidator], async (req, res) => {
+  route.post(`/:articleId/comments`, [articleExists(articleService), schemaValidator(commentSchema)], async (req, res) => {
     const {articleId} = res.locals;
     const comment = await commentService.create(articleId, req.body);
 

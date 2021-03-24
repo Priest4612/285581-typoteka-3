@@ -1,7 +1,7 @@
 'use strict';
 
 const faker = require(`faker`);
-const {sequelize} = require(`../lib/sequelize`);
+const {sequelize} = require(`../db/models`);
 const {initDB} = require(`../lib/init-db`);
 const {getLogger} = require(`../lib/logger`);
 const {nanoid} = require(`nanoid`);

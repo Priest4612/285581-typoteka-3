@@ -1,7 +1,10 @@
 'use strict';
 
 const resolvePath = require(`path`).resolve;
-const {PROJECT_DIR} = require(`../settings`);
+const {
+  PROJECT_DIR,
+  EXPRESS_FOLDER,
+} = require(`../settings`);
 
 const USER_ARGV_INDEX = 2;
 const DEFAULT_COMMAND = `--help`;
@@ -54,13 +57,11 @@ const GenerateFileRequirements = {
 
 const API_PREFIX = `/api`;
 
-const EXPRESS_PATH = resolvePath(PROJECT_DIR, `src/express`);
-
 const FrontDir = {
-  PUBLIC_DIR: resolvePath(EXPRESS_PATH, `public`),
-  TEMPLATES_DIR: resolvePath(EXPRESS_PATH, `templates`),
-  UPLOAD_DIR: resolvePath(EXPRESS_PATH, `upload`),
-  UPLOAD_IMAGES_DIR: resolvePath(EXPRESS_PATH, `upload`, `img`),
+  PUBLIC_DIR: resolvePath(EXPRESS_FOLDER, `public`),
+  TEMPLATES_DIR: resolvePath(EXPRESS_FOLDER, `templates`),
+  UPLOAD_DIR: resolvePath(EXPRESS_FOLDER, `upload`),
+  UPLOAD_IMAGES_DIR: resolvePath(EXPRESS_FOLDER, `upload`, `img`),
 };
 
 
